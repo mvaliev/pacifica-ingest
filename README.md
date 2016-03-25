@@ -24,6 +24,8 @@ To bring up a test instance use docker-compose
 
 ```
 docker-compose up
+
+test
 ```
 
 # API Examples
