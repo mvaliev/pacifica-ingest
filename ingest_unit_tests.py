@@ -22,7 +22,8 @@ class IndexServerUnitTests(unittest.TestCase):
         """
 
         with test_database(TEST_DB, (BaseModel, IngestState)):
-            test_object = IngestState.create(job_id=999, state='ERROR', task='unbundling', task_percent=42.3)
+            test_object = IngestState.create(job_id=999, state='ERROR', task='unbundling',
+                                             task_percent=42.3)
 
             self.assertEqual(test_object.job_id, 999)
 

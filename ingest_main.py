@@ -8,9 +8,10 @@ ingest Server
 from wsgiref.simple_server import make_server
 
 import os
+import json
 import logging
 
-from ingest_orm import IngestState, DB, update_state, read_state
+from ingest_orm import IngestState, DB, read_state
 
 from ingest_utils import create_invalid_return, create_state_return, get_job_id, \
                             get_unique_id, create_return_params
@@ -18,10 +19,6 @@ from ingest_utils import create_invalid_return, create_state_return, get_job_id,
 from ingest_backend import tasks
 
 from time import sleep
-
-
-from celery import shared_task
-
 
 def ping_celery():
     """
@@ -49,7 +46,7 @@ def application(environ, start_response):
 
     info = environ['PATH_INFO']
 
-    if info and info  == '/get_state':
+    if info and info == '/get_state':
 
         job_id = get_job_id(environ)
         record = read_state(job_id)
@@ -61,10 +58,12 @@ def application(environ, start_response):
 
     elif info and info == '/upload':
         # get id from id server
-        id, body = get_unique_id()
+        job_id, body = get_unique_id()
+
+        body = json.dumps({'job_id':job_id})
 
         tasks.thingy.delay()
-        
+
         ping_celery()
 
         status, response_headers, response_body = create_return_params(body)

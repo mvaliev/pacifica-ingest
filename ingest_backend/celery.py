@@ -11,9 +11,9 @@ import settings
 
 
 INGEST_APP = Celery('ingest_backend',
-                  broker=settings.BROKER_URL,
-                  backend="amqp",
-                  include=['ingest_backend.tasks'])
+                    broker=settings.BROKER_URL,
+                    backend="amqp",
+                    include=['ingest_backend.tasks'])
 
 INGEST_APP.config_from_object('settings')
 

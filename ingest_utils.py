@@ -2,8 +2,6 @@
     testable utilities for ingest
 """
 
-from ingest_orm import IngestState
-
 from urlparse import parse_qs
 import json
 
@@ -48,7 +46,6 @@ def create_invalid_return():
         ('Content-Type', 'application/json'),
         ('Content-Length', str(len(response_body)))
     ]
-    
 
     return (status, response_headers, response_body)
 
@@ -71,28 +68,31 @@ def create_state_return(record):
     creates the dictionary containing the start and stop index
     packs the message components
     """
-    dict = {'state' : record.state, 'task': record.task,'task_percent': str(record.task_percent)}
-    response_body = json.dumps(dict)
+    state = {'state' : record.state, 'task': record.task, 'task_percent': str(record.task_percent)}
+    response_body = json.dumps(state)
 
     return create_return_params(response_body)
 
 
 def get_unique_id():
+    """
+    returns a unique job id from the id server
+    """
 
-    buffer = StringIO()
-    c = pycurl.Curl()
-    c.setopt(c.URL, 'http://127.0.0.1:8051/getid?range=1&mode=upload_job')
-    c.setopt(c.WRITEDATA, buffer)
-    c.perform()
-    c.close()
+    buf = StringIO()
+    curl = pycurl.Curl()
+    curl.setopt(curl.URL, 'http://127.0.0.1:8051/getid?range=1&mode=upload_job')
+    curl.setopt(curl.WRITEDATA, buf)
+    curl.perform()
+    curl.close()
 
-    body = buffer.getvalue()
+    body = buf.getvalue()
 
     info = json.loads(body)
 
-    id = info['startIndex']
+    job_id = info['startIndex']
 
-    return (id, body)
+    return (job_id, body)
 
 
 

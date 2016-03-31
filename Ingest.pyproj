@@ -28,9 +28,6 @@
     <Compile Include="ingest_backend\celery.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ingest_backend\celery_utils.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="ingest_main.py" />
     <Compile Include="ingest_orm.py">
       <SubType>Code</SubType>

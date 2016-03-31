@@ -4,11 +4,8 @@ ingest infrastructure
 """
 
 from __future__ import absolute_import
-import os
-import datetime
-import pycurl
-from peewee import DoesNotExist
-from celery import shared_task, current_task
+
+from celery import current_task
 from .celery import INGEST_APP
 
 #@INGEST_APP.task(ignore_result=False)
