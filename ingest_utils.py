@@ -8,6 +8,10 @@ import json
 import pycurl
 from StringIO import StringIO
 
+import cgi
+import os
+import sys
+
 # pylint: disable=bare-except
 
 def get_job_id(environ):
@@ -93,6 +97,49 @@ def get_unique_id():
     job_id = info['startIndex']
 
     return (job_id, body)
+
+def receive(environ):
+    """
+    receive the tar file and save it locally
+    """
+    try:
+
+        if environ['REQUEST_METHOD'] == 'POST':
+            post = cgi.FieldStorage(
+                fp=environ['wsgi.input'],
+                environ=environ,
+                keep_blank_values=True
+            )
+
+            fileitem = post["userfile"]
+            if fileitem.file:
+                root = 'c:\Temp'
+                filename = fileitem.filename.decode('utf8').replace('\\','/').split('/')[-1].strip()
+                if not filename:
+                    raise Exception('No valid filename specified')
+                file_path = os.path.join(self.root, filename)
+                # Using with makes Python automatically close the file for you
+                counter = 0
+                with open(file_path, 'wb') as output_file:
+                    # In practice, sending these messages doesn't work
+                    # environ['wsgi.errors'].write('Receiving upload ...\n') 
+                    # environ['wsgi.errors'].flush()
+                    # print 'Receiving upload ...\n'
+                    while 1:
+                        data = fileitem.file.read(1024)
+                        # End of file
+                        if not data:
+                            break
+                        output_file.write(data)
+                        counter += 1
+                        if counter == 100:
+                            counter = 0
+                            # environ['wsgi.errors'].write('.') 
+                            # environ['wsgi.errors'].flush()
+                            # print '.',
+    except Exception, e:
+        print e.message
+
 
 
 

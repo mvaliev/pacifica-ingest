@@ -14,7 +14,7 @@ import logging
 from ingest_orm import IngestState, DB, read_state
 
 from ingest_utils import create_invalid_return, create_state_return, get_job_id, \
-                            get_unique_id, create_return_params
+                            get_unique_id, create_return_params, receive
 
 from ingest_backend import tasks
 
@@ -62,9 +62,10 @@ def application(environ, start_response):
 
         body = json.dumps({'job_id':job_id})
 
-        tasks.thingy.delay()
 
-        ping_celery()
+        #ping_celery()
+
+        receive(environ)
 
         status, response_headers, response_body = create_return_params(body)
         start_response(status, response_headers)
