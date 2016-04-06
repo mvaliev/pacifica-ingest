@@ -11,6 +11,7 @@ from StringIO import StringIO
 import cgi
 import os
 import sys
+import io
 
 # pylint: disable=bare-except
 
@@ -98,45 +99,59 @@ def get_unique_id():
 
     return (job_id, body)
 
-def receive(environ):
+def rename_bundle(environ, job_id):
     """
     receive the tar file and save it locally
     """
     try:
 
         if environ['REQUEST_METHOD'] == 'POST':
-            post = cgi.FieldStorage(
-                fp=environ['wsgi.input'],
-                environ=environ,
-                keep_blank_values=True
-            )
 
-            fileitem = post["userfile"]
-            if fileitem.file:
-                root = 'c:\Temp'
-                filename = fileitem.filename.decode('utf8').replace('\\','/').split('/')[-1].strip()
-                if not filename:
-                    raise Exception('No valid filename specified')
-                file_path = os.path.join(self.root, filename)
-                # Using with makes Python automatically close the file for you
-                counter = 0
-                with open(file_path, 'wb') as output_file:
-                    # In practice, sending these messages doesn't work
-                    # environ['wsgi.errors'].write('Receiving upload ...\n') 
-                    # environ['wsgi.errors'].flush()
-                    # print 'Receiving upload ...\n'
-                    while 1:
-                        data = fileitem.file.read(1024)
-                        # End of file
-                        if not data:
-                            break
-                        output_file.write(data)
-                        counter += 1
-                        if counter == 100:
-                            counter = 0
-                            # environ['wsgi.errors'].write('.') 
-                            # environ['wsgi.errors'].flush()
-                            # print '.',
+            ctype, pdict = cgi.parse_header( environ['CONTENT_TYPE']) 
+
+            path = environ['HTTP_X_FILE']
+
+            dir = os.path.dirname(path)
+
+            name = str(job_id) + ".tar"
+            name = os.path.join(dir, name)
+
+            os.rename(path, name)
+
+            return name
+    
+
+    except Exception, e:
+        print e.message
+
+
+def receive(environ, job_id):
+    """
+    receive the tar file and save it locally
+    """
+    try:
+        if environ['REQUEST_METHOD'] == 'POST':
+            dir = 'c:\\temp'
+            name = str(job_id) + ".tar"
+            name = os.path.join(dir, name)
+            fo = open(name, 'wb')
+
+            BLOCK_SIZE = 1024 * 1024
+            content_length = int(environ['CONTENT_LENGTH'])
+
+            print "content length " + str(content_length)
+
+            while content_length > 0:
+                if content_length > BLOCK_SIZE:
+                    buf = environ['wsgi.input'].read(BLOCK_SIZE)
+                else:
+                    buf = environ['wsgi.input'].read(content_length)
+
+                fo.write(buf)
+                content_length -= len(buf)
+            fo.close
+
+
     except Exception, e:
         print e.message
 
