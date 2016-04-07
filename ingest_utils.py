@@ -73,7 +73,7 @@ def create_state_return(record):
     creates the dictionary containing the start and stop index
     packs the message components
     """
-    state = {'state' : record.state, 'task': record.task, 'task_percent': str(record.task_percent)}
+    state = {'job_id' : record.job_id,'state' : record.state, 'task': record.task, 'task_percent': str(record.task_percent)}
     response_body = json.dumps(state)
 
     return create_return_params(response_body)
@@ -151,9 +151,11 @@ def receive(environ, job_id):
                 content_length -= len(buf)
             fo.close
 
+            return name
 
     except Exception, e:
         print e.message
+        return ""
 
 
 
