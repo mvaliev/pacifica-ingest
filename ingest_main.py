@@ -10,8 +10,9 @@ from wsgiref.simple_server import make_server
 import os
 import json
 import logging
+import peewee
 
-from ingest_orm import IngestState, DB, read_state
+from ingest_orm import IngestState, read_state, update_state, DB
 
 from ingest_utils import create_invalid_return, create_state_return, get_job_id, \
                             get_unique_id, create_return_params, receive
@@ -19,6 +20,8 @@ from ingest_utils import create_invalid_return, create_state_return, get_job_id,
 from ingest_backend import tasks
 
 from time import sleep
+
+import pycurl
 
 def ping_celery():
     """
@@ -38,7 +41,13 @@ def ping_celery():
 
     return False
 
-@DB.atomic()
+def start_ingest(job_id, filepath):
+    """
+    start the celery injest task
+    """
+    ingest_process = tasks.ingest.delay(job_id, filepath)
+
+#@DB.atomic()
 def application(environ, start_response):
     """
     The wsgi callback
@@ -57,19 +66,30 @@ def application(environ, start_response):
             return [response_body]
 
     elif info and info == '/upload':
-        # get id from id server
-        job_id, body = get_unique_id()
 
-        body = json.dumps({'job_id':job_id})
+        success = ping_celery()
+        if success:
 
+            # get id from id server
+            job_id, body = get_unique_id()
 
-        #ping_celery()
+            update_state(job_id, 'OK', 'UPLOADING', 0)
 
-        receive(environ)
+            filepath = receive(environ, job_id)
 
-        status, response_headers, response_body = create_return_params(body)
-        start_response(status, response_headers)
-        return [body]
+            start_ingest(job_id, filepath)
+
+            record = read_state(job_id)
+
+        else:
+            record = IngestState()
+            record.state = 'ERROR: Celery is dead'
+            record.job_id = -99
+
+        if record:
+            status, response_headers, response_body = create_state_return(record)
+            start_response(status, response_headers)
+            return [response_body]
 
     else:
         status, response_headers, response_body = create_invalid_return()
