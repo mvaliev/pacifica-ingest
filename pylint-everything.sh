@@ -1,3 +1,4 @@
 #!/bin/bash -xe
 
-pylint FileIndexServer
+pylint --extension-pkg-whitelist=pycurl ./
+pylint --extension-pkg-whitelist=pycurl ingest_backend
