@@ -5,6 +5,7 @@ import peewee
 import os
 
 # pylint: disable=too-few-public-methods
+# peewee, man
 
 DB = peewee.MySQLDatabase(os.getenv('MYSQL_ENV_MYSQL_DATABASE'),
                           host=os.getenv('MYSQL_PORT_3306_TCP_ADDR'),
