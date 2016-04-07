@@ -10,7 +10,7 @@ from .celery import INGEST_APP
 
 from time import sleep
 
-from ingest_orm import IngestState, read_state, update_state, DB
+from ingest_orm import update_state
 
 @INGEST_APP.task(ignore_result=False)
 def ingest(job_id, filepath):
@@ -18,10 +18,10 @@ def ingest(job_id, filepath):
     ingest a tar bundle into the archive
     """
 
-    for i in range(1,10):
+    for i in range(1, 10):
         sleep(1)
         print i*10
-        update_state (job_id, 'Super OK', 'Ingesting ' + filepath, i*10)
+        update_state(job_id, 'Super OK', 'Ingesting ' + filepath, i*10)
 
 
 

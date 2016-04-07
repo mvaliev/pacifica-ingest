@@ -8,20 +8,16 @@ ingest Server
 from wsgiref.simple_server import make_server
 
 import os
-import json
 import logging
-import peewee
 
-from ingest_orm import IngestState, read_state, update_state, DB
+from ingest_orm import IngestState, read_state, update_state
 
 from ingest_utils import create_invalid_return, create_state_return, get_job_id, \
-                            get_unique_id, create_return_params, receive
+                            get_unique_id, receive
 
 from ingest_backend import tasks
 
 from time import sleep
-
-import pycurl
 
 def ping_celery():
     """
@@ -45,7 +41,7 @@ def start_ingest(job_id, filepath):
     """
     start the celery injest task
     """
-    ingest_process = tasks.ingest.delay(job_id, filepath)
+    tasks.ingest.delay(job_id, filepath)
 
 #@DB.atomic()
 def application(environ, start_response):
@@ -71,7 +67,7 @@ def application(environ, start_response):
         if success:
 
             # get id from id server
-            job_id, body = get_unique_id()
+            job_id = get_unique_id()
 
             update_state(job_id, 'OK', 'UPLOADING', 0)
 

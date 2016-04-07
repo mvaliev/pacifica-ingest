@@ -8,12 +8,10 @@ import json
 import pycurl
 from StringIO import StringIO
 
-import cgi
 import os
-import sys
-import io
 
 # pylint: disable=bare-except
+# pylint: disable=broad-except
 
 def get_job_id(environ):
     """
@@ -73,7 +71,8 @@ def create_state_return(record):
     creates the dictionary containing the start and stop index
     packs the message components
     """
-    state = {'job_id' : record.job_id,'state' : record.state, 'task': record.task, 'task_percent': str(record.task_percent)}
+    state = {'job_id' : record.job_id, 'state' : record.state, 'task': record.task,\
+             'task_percent': str(record.task_percent)}
     response_body = json.dumps(state)
 
     return create_return_params(response_body)
@@ -97,7 +96,7 @@ def get_unique_id():
 
     job_id = info['startIndex']
 
-    return (job_id, body)
+    return job_id
 
 def rename_bundle(environ, job_id):
     """
@@ -107,22 +106,22 @@ def rename_bundle(environ, job_id):
 
         if environ['REQUEST_METHOD'] == 'POST':
 
-            ctype, pdict = cgi.parse_header( environ['CONTENT_TYPE']) 
+            # ctype, pdict = cgi.parse_header(environ['CONTENT_TYPE'])
 
             path = environ['HTTP_X_FILE']
 
-            dir = os.path.dirname(path)
+            root = os.path.dirname(path)
 
             name = str(job_id) + ".tar"
-            name = os.path.join(dir, name)
+            name = os.path.join(root, name)
 
             os.rename(path, name)
 
             return name
-    
 
-    except Exception, e:
-        print e.message
+
+    except Exception, ex:
+        print ex.message
 
 
 def receive(environ, job_id):
@@ -131,30 +130,31 @@ def receive(environ, job_id):
     """
     try:
         if environ['REQUEST_METHOD'] == 'POST':
-            dir = 'c:\\temp'
+            root = 'c:\\temp'
             name = str(job_id) + ".tar"
-            name = os.path.join(dir, name)
-            fo = open(name, 'wb')
+            name = os.path.join(root, name)
+            file_out = open(name, 'wb')
 
-            BLOCK_SIZE = 1024 * 1024
+            block_size = 1024 * 1024
             content_length = int(environ['CONTENT_LENGTH'])
 
             print "content length " + str(content_length)
 
             while content_length > 0:
-                if content_length > BLOCK_SIZE:
-                    buf = environ['wsgi.input'].read(BLOCK_SIZE)
+                if content_length > block_size:
+                    buf = environ['wsgi.input'].read(block_size)
                 else:
                     buf = environ['wsgi.input'].read(content_length)
 
-                fo.write(buf)
+                file_out.write(buf)
                 content_length -= len(buf)
-            fo.close
+
+            file_out.close()
 
             return name
 
-    except Exception, e:
-        print e.message
+    except Exception, ex:
+        print ex.message
         return ""
 
 
