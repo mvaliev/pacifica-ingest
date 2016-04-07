@@ -8,12 +8,24 @@ from __future__ import absolute_import
 from celery import current_task
 from .celery import INGEST_APP
 
-#@INGEST_APP.task(ignore_result=False)
+from time import sleep
+
+from ingest_orm import IngestState, read_state, update_state, DB
 
 @INGEST_APP.task(ignore_result=False)
-def thingy():
-    """ thingy """
-    print 'thingy'
+def ingest(job_id, filepath):
+    """
+    ingest a tar bundle into the archive
+    """
+
+    for i in range(1,10):
+        sleep(1)
+        print i*10
+        update_state (job_id, 'Super OK', 'Ingesting ' + filepath, i*10)
+
+
+
+
 
 @INGEST_APP.task(ignore_result=False)
 def ping():
