@@ -42,7 +42,7 @@ def update_state(job_id, state, task, task_percent):
     """
     updates the state of an ingest job
     """
-    if job_id and state and task and task_percent and job_id >= 0:
+    if job_id and job_id >= 0:
         record = IngestState.get_or_create(job_id=job_id,
                                            defaults={'task':'', 'task_percent':0, 'state':''})[0]
 
@@ -56,8 +56,7 @@ def read_state(job_id):
     returns the state of an ingest job as a json object
     """
     if job_id and job_id >= 0:
-        record = IngestState.get_or_create(job_id=job_id,
-                                           defaults={'task':'', 'task_percent':0, 'state':''})[0]
+        record = IngestState.get(job_id=job_id)
     else:
         record = IngestState()
         record.state = 'DATA_ACCESS_ERROR'
