@@ -31,7 +31,7 @@ class IndexServerUnitTests(unittest.TestCase):
         # and set the start id to the low end of the range
         ingest.id_start = 0
 
-        ingest.ingest_tar()
+        ingest.ingest()
 
     def test_upload_file(self):
         return

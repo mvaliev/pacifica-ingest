@@ -1,19 +1,19 @@
 """
-    utilities for unbundling 
+    utilities and classes for unbundling and archiving a tar file
 """
 
 import tarfile
-import os
 import pycurl
 from StringIO import StringIO
-
-import unicodedata
 
 import json
 import hashlib
 import time
 
 class FileIngester(object):
+    """
+    class to ingest a single file from a tar file into the file archives
+    """
 
     fileobj = None
     id = 0
@@ -22,12 +22,20 @@ class FileIngester(object):
     server = ''
 
     def __init__(self, hash, server, id):
+        """
+        constructor for FileIngester class
+        """
+
         self.hashval = hashlib.sha1()
         self.recorded_hash = hash
         self.server = server
         self.id = id
 
     def reader(self, size):
+        """
+        read wrapper for pycurl that calculates the hashcode inline
+        """
+
         buf = self.fileobj.read(size)
 
         # running checksum
@@ -36,6 +44,9 @@ class FileIngester(object):
         return buf
 
     def validate_hash(self):
+        """
+        validate that the calculated hash matches the hash uploaded in the tar file
+        """
         file_hash = self.hashval.hexdigest()
 
         if self.recorded_hash == file_hash:
@@ -50,7 +61,7 @@ class FileIngester(object):
             self.fileobj = tar.extractfile(info)
 
             size = self.fileobj.size
-            sizeStr = str(size)
+            size_str = str(size)
 
             buf = StringIO()
 
@@ -62,7 +73,7 @@ class FileIngester(object):
 
             curl.setopt(curl.HTTPHEADER,['Last-Modified: ' + mod_time, 
                                          'Content-Type: application/octet-stream',
-                                         'Content-Length: ' + sizeStr
+                                         'Content-Length: ' + size_str
                                          ])
 
             #assume tar file is open
@@ -81,15 +92,16 @@ class FileIngester(object):
 
             body = buf.getvalue()
 
-            print body
-
             try:
                 ret_dict = json.loads(body)
                 msg = ret_dict['message']
+                print msg
+
                 bytes = int(ret_dict['total_bytes'])
                 if bytes != info.size:
                     return False
-            except Exception, e:
+            except Exception, ex:
+                print ex
                 return False
 
             success = self.validate_hash()
@@ -106,11 +118,17 @@ class FileIngester(object):
             print ex
 
 class MetaParser(object):
+    """
+    class used to hold and search metadata
+    """
 
     meta_dict = None
     file_dict = None
 
     def load_meta(self, tar):
+        """
+        loads the metadata from a tar file into searchable structures
+        """
 
         string = tar.extractfile('metadata.txt').read()
 
@@ -122,13 +140,13 @@ class MetaParser(object):
 
         for elem in files:
             fname = elem['fileName']
-            hash = elem['sha1Hash']
-            dir = elem['destinationDirectory']
+            hashcode = elem['sha1Hash']
+            directory = elem['destinationDirectory']
 
             # force linux format
-            path = dir + '/' +  fname
+            path = directory + '/' +  fname
 
-            self.file_dict [path] = hash
+            self.file_dict [path] = hashcode
 
     def pack_meta(self):
         """
@@ -136,58 +154,75 @@ class MetaParser(object):
         """
 
     def get_hash(self, fname):
+        """
+        returns the hash string for a file name
+        """
         return self.file_dict[fname]
 
-    def get_clipped(self, fname):
-        return fname.replace ('data/', '')
+
+def get_clipped(fname):
+    """
+    returns a file path with the data separator removed
+    """
+    return fname.replace ('data/', '')
 
 
 
 class TarIngester():
     """
+    class to read a tar file and upload it to the metadata and file archives
     """
     fpath = ''
     server = ''
     id_start = 0
 
     def __init__(self, fpath, server):
+        """
+        constructor for TarIngester class
+        """
         self.fpath = fpath
         self.server = server
 
-    def open_tar(self, fpath):
+    def open_tar(self):
 
         """ 
         seeks to the location of fpath, returns a file stream pointer and file size.
         """
         # check validity
-        if not tarfile.is_tarfile(fpath):
-            false
+        if not tarfile.is_tarfile(self.fpath):
+            return None
 
         # open tar file
         try:
-            tar = tarfile.open(fpath, 'r:')
-        except tarfile.TarError, e:
-            print "Error opening: " + fpath
+            tar = tarfile.open(self.fpath, 'r:')
+        except tarfile.TarError:
+            print "Error opening: " + self.fpath
             return None
 
         return tar
 
     def file_count(self):
-        tar = self.open_tar(self.fpath)
+        """
+        retrieves the file count for a tar file
+        does not count metadata.txt as that is not uploaded to the file archive
+        """
+        tar = self.open_tar()
         members = tar.getmembers()
 
         # don't count the metadata.txt file
         return len(members) - 1
 
-    def ingest_tar(self):
-
+    def ingest(self):
+        """
+        ingest a tar file into the metadata and file archives
+        """
         # get the file members
-        tar = self.open_tar(self.fpath)
+        tar = self.open_tar()
 
         meta = MetaParser()
         meta.load_meta(tar)
 
-        id = self.id_start
+        inc_id = self.id_start
 
          # get the file members
         members = tar.getmembers()
@@ -197,11 +232,11 @@ class TarIngester():
 
             if (info.name != 'metadata.txt'):
 
-                ingest = FileIngester(meta.get_hash(info.name), self.server, id)
+                ingest = FileIngester(meta.get_hash(info.name), self.server, inc_id)
 
-                ingest.upload_file_in_file(info, tar, id)
+                ingest.upload_file_in_file(info, tar, inc_id)
 
-                id += 1
+                inc_id += 1
 
 
         return True
