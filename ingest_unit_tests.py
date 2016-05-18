@@ -7,7 +7,7 @@ from ingest_orm import IngestState, BaseModel, update_state, read_state
 from ingest_utils import get_job_id, create_invalid_return, create_return_params, create_state_return, \
                          get_unique_id, receive, rename_bundle, valid_request, upload_file
 
-from ingest_tar_utils import ingest_tar
+from ingest_tar_utils import TarIngester
 
 from playhouse.test_utils import test_database
 from peewee import SqliteDatabase
@@ -22,9 +22,12 @@ class IndexServerUnitTests(unittest.TestCase):
     """
 
     def test_ingest_tar(self):
-        for i in range(1, 2):
-            print "from tar file:" + str(i)
-            ingest_tar('c:\\Temp\\test.tar')
+
+        ingest = TarIngester('c:\\Temp\\test.tar', 'http://130.20.227.120:8067/')
+
+        count = ingest.file_count()
+
+        ingest.ingest_tar()
 
     def test_upload_file(self):
         return

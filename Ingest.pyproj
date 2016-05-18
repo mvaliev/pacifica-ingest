@@ -6,7 +6,7 @@
     <ProjectGuid>65fbf8f1-0f97-46ca-a8d1-89b7dac1d432</ProjectGuid>
     <ProjectHome>
     </ProjectHome>
-    <StartupFile>ingest_main.py</StartupFile>
+    <StartupFile>ingest_unit_tests.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -32,6 +32,9 @@
     <Compile Include="ingest_orm.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ingest_tar_utils.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="ingest_unit_tests.py">
       <SubType>Code</SubType>
     </Compile>
@@ -52,7 +55,9 @@
     <InterpreterReference Include="{9a7a9026-48c1-4688-9d5d-e5699d47d074}\2.7" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="pylint-everything.sh" />
     <Content Include="README.md" />
+    <Content Include="requirements.txt" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ingest_backend\" />
