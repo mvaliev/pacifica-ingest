@@ -27,6 +27,10 @@ class IndexServerUnitTests(unittest.TestCase):
 
         count = ingest.file_count()
 
+        # this is where we would get a unique range of id's
+        # and set the start id to the low end of the range
+        ingest.id_start = 0
+
         ingest.ingest_tar()
 
     def test_upload_file(self):

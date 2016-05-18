@@ -148,6 +148,7 @@ class TarIngester():
     """
     fpath = ''
     server = ''
+    id_start = 0
 
     def __init__(self, fpath, server):
         self.fpath = fpath
@@ -186,7 +187,7 @@ class TarIngester():
         meta = MetaParser()
         meta.load_meta(tar)
 
-        id = 0
+        id = self.id_start
 
          # get the file members
         members = tar.getmembers()
