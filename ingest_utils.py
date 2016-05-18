@@ -10,6 +10,8 @@ from StringIO import StringIO
 
 import os
 
+from time import sleep
+
 # pylint: disable=bare-except
 # pylint: disable=broad-except
 
@@ -97,6 +99,44 @@ def get_unique_id():
     job_id = info['startIndex']
 
     return job_id
+
+
+def upload_file(filepath, uid):
+    """
+    returns a unique job id from the id server
+    """
+
+    try:
+        size = os.path.getsize(filepath)
+        sizeStr = str(size)
+
+        buf = StringIO()
+
+        curl = pycurl.Curl()
+
+        curl.setopt(pycurl.PUT, True)
+
+        curl.setopt(pycurl.HTTPHEADER,['Last-Modified: Sun, 06 Nov 1994 08:49:37 GMT', 
+                                       'Content-Type: application/octet-stream',
+                                       'Content-Length: ' + sizeStr
+                                       ])
+
+        fin = open(filepath,'rb')
+        #global fo
+        #fo = fin
+        curl.setopt(curl.READFUNCTION, fin.read)
+        curl.setopt(curl.INFILESIZE, size)
+        curl.setopt(curl.URL, 'http://130.20.227.120:8067/' + str(uid))
+        curl.setopt(curl.WRITEDATA, buf)
+        curl.perform()
+        curl.close()
+
+        body = buf.getvalue()
+        print body
+        return body
+    except Exception, ex:
+        print ex
+
 
 def rename_bundle(environ, job_id):
     """

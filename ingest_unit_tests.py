@@ -4,6 +4,10 @@
 import unittest
 from ingest_orm import IngestState, BaseModel, update_state, read_state
 
+from ingest_utils import get_job_id, create_invalid_return, create_return_params, create_state_return, \
+                         get_unique_id, receive, rename_bundle, valid_request, upload_file
+
+from ingest_tar_utils import ingest_tar
 
 from playhouse.test_utils import test_database
 from peewee import SqliteDatabase
@@ -16,6 +20,18 @@ class IndexServerUnitTests(unittest.TestCase):
     """
     index server unit and integration tests
     """
+
+    def test_ingest_tar(self):
+        for i in range(1, 2):
+            print "from tar file:" + str(i)
+            ingest_tar('c:\\Temp\\test.tar')
+
+    def test_upload_file(self):
+        return
+        for i in range(1, 20):
+            print "from file:" + str(i)
+            upload_file('c:\\Temp\\index.html', 1)
+
     def test_update_state(self):
         """
         test return and update of unique index
@@ -34,6 +50,15 @@ class IndexServerUnitTests(unittest.TestCase):
             self.assertEqual(record.state, 'WORKING')
             self.assertEqual(record.task, 'validating')
             #self.assertEqual(record.task_percent, 33.2)
+
+    def test_get_job_id(environ):
+        """
+        parse the parameters for a request from the environ dictionary
+        #"""
+        #environ['QUERY_STRING']
+        #environ = {'QUERY_STRING':['job_id':100]}
+        #job_id = get_job_id(environ)
+        #self.assertEqual(job_id, 100)
 
 
 
