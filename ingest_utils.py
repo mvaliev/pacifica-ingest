@@ -116,7 +116,7 @@ def upload_file(filepath, uid):
 
         curl.setopt(pycurl.PUT, True)
 
-        curl.setopt(pycurl.HTTPHEADER,['Last-Modified: Sun, 06 Nov 1994 08:49:37 GMT', 
+        curl.setopt(pycurl.HTTPHEADER,['Last-Modified: Sun, 06 Nov 1994 08:49:37 GMT',
                                        'Content-Type: application/octet-stream',
                                        'Content-Length: ' + sizeStr
                                        ])

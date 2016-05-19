@@ -16,20 +16,20 @@ class FileIngester(object):
     """
 
     fileobj = None
-    id = 0
+    file_id = 0
     recorded_hash = ''
     hashval = None
     server = ''
 
-    def __init__(self, hash, server, id):
+    def __init__(self, hashcode, server, file_id):
         """
         constructor for FileIngester class
         """
 
         self.hashval = hashlib.sha1()
-        self.recorded_hash = hash
+        self.recorded_hash = hashcode
         self.server = server
-        self.id = id
+        self.file_id = file_id
 
     def reader(self, size):
         """
@@ -71,10 +71,10 @@ class FileIngester(object):
 
             mod_time = time.ctime(info.mtime)
 
-            curl.setopt(curl.HTTPHEADER,['Last-Modified: ' + mod_time, 
+            curl.setopt(curl.HTTPHEADER,['Last-Modified: ' + mod_time,
                                          'Content-Type: application/octet-stream',
                                          'Content-Length: ' + size_str
-                                         ])
+                                        ])
 
             #assume tar file is open
             self.fileobj.seek(0)
@@ -97,8 +97,8 @@ class FileIngester(object):
                 msg = ret_dict['message']
                 print msg
 
-                bytes = int(ret_dict['total_bytes'])
-                if bytes != info.size:
+                size = int(ret_dict['total_bytes'])
+                if size != info.size:
                     return False
             except Exception, ex:
                 print ex
@@ -146,7 +146,7 @@ class MetaParser(object):
             # force linux format
             path = directory + '/' +  fname
 
-            self.file_dict [path] = hashcode
+            self.file_dict[path] = hashcode
 
     def pack_meta(self):
         """
@@ -164,7 +164,7 @@ def get_clipped(fname):
     """
     returns a file path with the data separator removed
     """
-    return fname.replace ('data/', '')
+    return fname.replace('data/', '')
 
 
 
@@ -185,7 +185,7 @@ class TarIngester():
 
     def open_tar(self):
 
-        """ 
+        """
         seeks to the location of fpath, returns a file stream pointer and file size.
         """
         # check validity
@@ -230,7 +230,7 @@ class TarIngester():
         for info in members:
             print info.name
 
-            if (info.name != 'metadata.txt'):
+            if info.name != 'metadata.txt':
 
                 ingest = FileIngester(meta.get_hash(info.name), self.server, inc_id)
 

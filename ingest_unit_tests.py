@@ -58,7 +58,7 @@ class IndexServerUnitTests(unittest.TestCase):
             self.assertEqual(record.task, 'validating')
             #self.assertEqual(record.task_percent, 33.2)
 
-    def test_get_job_id(environ):
+    def test_get_job_id(self, environ):
         """
         parse the parameters for a request from the environ dictionary
         #"""
