@@ -7,6 +7,9 @@ from ingest_orm import IngestState, BaseModel, update_state, read_state
 from ingest_utils import get_job_id, create_invalid_return, create_return_params, create_state_return, \
                          get_unique_id, receive, rename_bundle, valid_request, upload_file
 
+import ingest_tar_utils
+from ingest_tar_utils import open_tar
+from ingest_tar_utils import MetaParser
 from ingest_tar_utils import TarIngester
 
 from playhouse.test_utils import test_database
@@ -21,15 +24,45 @@ class IndexServerUnitTests(unittest.TestCase):
     index server unit and integration tests
     """
 
-    def test_ingest_tar(self):
+    def test_load_meta(self):
+        """
+        tests moving individual files to the archive
+        files are validated inline with the upload
+        """
 
-        ingest = TarIngester('c:\\Temp\\test.tar', 'http://130.20.227.120:8067/')
 
-        count = ingest.file_count()
+        tar = open_tar('c:\\Temp\\test.tar')
 
-        # this is where we would get a unique range of id's
+        count = ingest_tar_utils.file_count(tar)
+
+        # this is where we would get a unique range of id's for files
         # and set the start id to the low end of the range
-        ingest.id_start = 0
+        # and the transaction id
+
+        meta = MetaParser(1, 0)
+
+        meta.load_meta(tar)
+
+
+    def test_ingest_tar(self):
+        """
+        tests moving individual files to the archive
+        files are validated inline with the upload
+        """
+
+        tar = open_tar('c:\\Temp\\test.tar')
+
+        count = ingest_tar_utils.file_count(tar)
+
+        # this is where we would get a unique range of id's for files
+        # and set the start id to the low end of the range
+        # and the transaction id
+
+
+        meta = MetaParser(1, 0)
+
+        meta.load_meta(tar)
+        ingest = TarIngester(tar, meta, 'http://130.20.227.120:8067/')
 
         ingest.ingest()
 

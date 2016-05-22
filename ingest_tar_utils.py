@@ -53,7 +53,7 @@ class FileIngester(object):
             return True
         return False
 
-    def upload_file_in_file(self, info, tar, uid):
+    def upload_file_in_file(self, info, tar):
         """
         uploads a file from inside a tar file
         """
@@ -82,7 +82,7 @@ class FileIngester(object):
             curl.setopt(curl.READFUNCTION, self.reader)
             curl.setopt(curl.INFILESIZE, size)
 
-            curl.setopt(curl.URL, self.server + str(uid))
+            curl.setopt(curl.URL, self.server + str(self.file_id))
             curl.setopt(curl.WRITEDATA, buf)
 
             curl.perform()
@@ -112,7 +112,6 @@ class FileIngester(object):
                 # roll back upload
                 return False
 
-
             return success
         except Exception, ex:
             print ex
@@ -122,8 +121,21 @@ class MetaParser(object):
     class used to hold and search metadata
     """
 
-    meta_dict = None
-    file_dict = None
+    # entire metadata 
+    meta = None
+
+    # a map of filenames to hashcodes
+    files = None
+
+    startID = -999
+    transactionID = -999
+
+    def __init__(self, transactionID, startID):
+        """
+        constructor
+        """
+        self.transactionID = transactionID
+        self.startID = startID
 
     def load_meta(self, tar):
         """
@@ -132,13 +144,34 @@ class MetaParser(object):
 
         string = tar.extractfile('metadata.txt').read()
 
-        self.meta_dict = json.loads(string)
+        received = json.loads(string)
 
-        files = self.meta_dict['file']
+        received_eus = received['eusInfo']
 
-        self.file_dict = {}
+        transaction = {'ID':self.transactionID,
+                     'submitter': 'do not have this',
+                     'verified':True,
+                     'updated':False,
+                     'created':True,
+                     'deleted': False,
+                     'proposal':received_eus['proposalID'],
+                     'instrument':received_eus['instrumentId']}
 
-        for elem in files:
+        groups = received_eus['groups']
+
+        packupload = {}
+        for element in groups:
+            value = element['name']
+            key = element['type']
+            packupload[key] = value
+
+        transaction['uploadMeta'] = packupload
+
+        id = self.startID
+        recieved_files = received['file']
+        files = {}
+
+        for elem in recieved_files:
             fname = elem['fileName']
             hashcode = elem['sha1Hash']
             directory = elem['destinationDirectory']
@@ -146,19 +179,98 @@ class MetaParser(object):
             # force linux format
             path = directory + '/' +  fname
 
-            self.file_dict[path] = hashcode
+            # we don't upload the metadata file
+            if path == 'metadata.txt':
+                continue
 
-    def pack_meta(self):
-        """
-        pack metadata into a json object to pass to the metadata archive
-        """
+            # open the file in the tar to get the file info
+            member = tar.getmember(path)
 
-    def get_hash(self, fname):
+            file_element = {'name': path,
+                            'subdir': directory,
+                            'hash':'sha1:' + hashcode, 
+                            'vtime': '',
+                            'ctime': '',
+                            'mtime': member.mtime,
+                            'verified': False,
+                            'updated': False,
+                            'created': False,
+                            'deleted': False,
+                            'size': member.size,
+                            'transaction': self.transactionID}
+
+            files[id] = file_element;
+            id+=1
+
+        self.files = files
+
+        self.meta = {}
+        self.meta['transaction'] = transaction
+        self.meta['files'] = files
+
+
+    def get_hash(self, id):
         """
         returns the hash string for a file name
         """
-        return self.file_dict[fname]
+        file_element = self.files[id]
+        
+        #remove filetype
+        hash = file_element['hash'].replace('sha1:', '')
 
+        return hash
+
+    def get_fname(self, id):
+        """
+        returns the hash string for a file name
+        """
+        file_element = self.files[id]
+        
+        #remove filetype
+        hash = file_element['name']
+
+        return hash
+
+
+class TarIngester():
+    """
+    class to read a tar file and upload it to the metadata and file archives
+    """
+    tar = None
+    meta = None
+    server = ''
+    startID = -999
+    transactionID = -999
+
+    def __init__(self, tar, meta, server):
+        """
+        constructor for TarIngester class
+        """
+        self.tar = tar
+        self.meta = meta
+        self.server = server
+
+    def ingest(self):
+        """
+        ingest a tar file into the metadata and file archives
+        """
+
+        keys = self.meta.files.keys()
+
+        for id in keys:
+
+            hash = self.meta.get_hash(id)
+            name = self.meta.get_fname(id)
+
+            info = self.tar.getmember(name)
+
+            print info.name
+
+            ingest = FileIngester(hash, self.server, id)
+
+            ingest.upload_file_in_file(info, self.tar)
+
+        return True
 
 def get_clipped(fname):
     """
@@ -166,77 +278,30 @@ def get_clipped(fname):
     """
     return fname.replace('data/', '')
 
+def open_tar(fpath):
 
-
-class TarIngester():
     """
-    class to read a tar file and upload it to the metadata and file archives
+    seeks to the location of fpath, returns a file stream pointer and file size.
     """
-    fpath = ''
-    server = ''
-    id_start = 0
+    # check validity
+    if not tarfile.is_tarfile(fpath):
+        return None
 
-    def __init__(self, fpath, server):
-        """
-        constructor for TarIngester class
-        """
-        self.fpath = fpath
-        self.server = server
+    # open tar file
+    try:
+        tar = tarfile.open(fpath, 'r:')
+    except tarfile.TarError:
+        print "Error opening: " + fpath
+        return None
 
-    def open_tar(self):
+    return tar
 
-        """
-        seeks to the location of fpath, returns a file stream pointer and file size.
-        """
-        # check validity
-        if not tarfile.is_tarfile(self.fpath):
-            return None
+def file_count(tar):
+    """
+    retrieves the file count for a tar file
+    does not count metadata.txt as that is not uploaded to the file archive
+    """
+    members = tar.getmembers()
 
-        # open tar file
-        try:
-            tar = tarfile.open(self.fpath, 'r:')
-        except tarfile.TarError:
-            print "Error opening: " + self.fpath
-            return None
-
-        return tar
-
-    def file_count(self):
-        """
-        retrieves the file count for a tar file
-        does not count metadata.txt as that is not uploaded to the file archive
-        """
-        tar = self.open_tar()
-        members = tar.getmembers()
-
-        # don't count the metadata.txt file
-        return len(members) - 1
-
-    def ingest(self):
-        """
-        ingest a tar file into the metadata and file archives
-        """
-        # get the file members
-        tar = self.open_tar()
-
-        meta = MetaParser()
-        meta.load_meta(tar)
-
-        inc_id = self.id_start
-
-         # get the file members
-        members = tar.getmembers()
-
-        for info in members:
-            print info.name
-
-            if info.name != 'metadata.txt':
-
-                ingest = FileIngester(meta.get_hash(info.name), self.server, inc_id)
-
-                ingest.upload_file_in_file(info, tar, inc_id)
-
-                inc_id += 1
-
-
-        return True
+    # don't count the metadata.txt file
+    return len(members) - 1
