@@ -150,10 +150,6 @@ class MetaParser(object):
 
         transaction = {'ID':self.transactionID,
                      'submitter': 'do not have this',
-                     'verified':True,
-                     'updated':False,
-                     'created':True,
-                     'deleted': False,
                      'proposal':received_eus['proposalID'],
                      'instrument':received_eus['instrumentId']}
 
@@ -165,7 +161,7 @@ class MetaParser(object):
             key = element['type']
             packupload[key] = value
 
-        transaction['uploadMeta'] = packupload
+        transaction['user_search_meta'] = packupload
 
         id = self.startID
         recieved_files = received['file']
@@ -190,12 +186,8 @@ class MetaParser(object):
                             'subdir': directory,
                             'hash':'sha1:' + hashcode, 
                             'vtime': '',
-                            'ctime': '',
                             'mtime': member.mtime,
                             'verified': False,
-                            'updated': False,
-                            'created': False,
-                            'deleted': False,
                             'size': member.size,
                             'transaction': self.transactionID}
 
