@@ -7,6 +7,8 @@ from ingest_orm import IngestState, BaseModel, update_state, read_state
 from ingest_utils import get_job_id, create_invalid_return, create_return_params, create_state_return, \
                          get_unique_id, receive, rename_bundle, valid_request, upload_file
 
+import UnpackMeta
+
 import ingest_tar_utils
 from ingest_tar_utils import open_tar
 from ingest_tar_utils import MetaParser
@@ -26,10 +28,9 @@ class IndexServerUnitTests(unittest.TestCase):
 
     def test_load_meta(self):
         """
-        tests moving individual files to the archive
-        files are validated inline with the upload
+        tests sucking metadata from uploader and configuring it in a 
+        dictionary suitable to blob to meta ingest
         """
-
 
         tar = open_tar('c:\\Temp\\test.tar')
 
@@ -43,12 +44,23 @@ class IndexServerUnitTests(unittest.TestCase):
 
         meta.load_meta(tar)
 
+        return meta
+
+    def test_unpack_meta(self):
+        """
+        tests parsing the meta blob
+        """
+
+        meta = self.test_load_meta()
+
+        parser = UnpackMeta.UnpackMeta(meta)
 
     def test_ingest_tar(self):
         """
         tests moving individual files to the archive
         files are validated inline with the upload
         """
+        return;
 
         tar = open_tar('c:\\Temp\\test.tar')
 
@@ -58,11 +70,16 @@ class IndexServerUnitTests(unittest.TestCase):
         # and set the start id to the low end of the range
         # and the transaction id
 
-
         meta = MetaParser(1, 0)
 
         meta.load_meta(tar)
         ingest = TarIngester(tar, meta, 'http://130.20.227.120:8067/')
+
+        # validate archive process
+        # if not valid:
+        #     rollback()
+
+        # success = MetaUpload()
 
         ingest.ingest()
 
@@ -76,6 +93,7 @@ class IndexServerUnitTests(unittest.TestCase):
         """
         test return and update of unique index
         """
+        return
 
         with test_database(TEST_DB, (BaseModel, IngestState)):
             test_object = IngestState.create(job_id=999, state='ERROR', task='unbundling',
