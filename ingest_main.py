@@ -63,7 +63,8 @@ def application(environ, start_response):
 
     elif info and info == '/upload':
 
-        success = ping_celery()
+        #success = ping_celery()
+        success = True
         if success:
 
             # get id from id server

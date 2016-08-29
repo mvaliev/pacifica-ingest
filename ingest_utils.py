@@ -45,7 +45,7 @@ def create_invalid_return():
     """
     status = '404 NOT FOUND'
 
-    response_body = ''
+    response_body = 'Invalid'
 
     response_headers = [
         ('Content-Type', 'application/json'),
