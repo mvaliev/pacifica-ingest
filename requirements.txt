@@ -2,3 +2,5 @@ MySQL-python
 peewee
 pylint
 pycurl
+coverage
+codeclimate-test-reporter
