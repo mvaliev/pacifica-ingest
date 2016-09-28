@@ -1,4 +1,5 @@
-#!/bin/bash -xe
+#!/bin/bash -x
 
-pylint --extension-pkg-whitelist=pycurl ./
+pylint --extension-pkg-whitelist=pycurl *.py
 pylint --extension-pkg-whitelist=pycurl ingest_backend
+exit 0
