@@ -1,7 +1,5 @@
+celery
 MySQL-python
 peewee
-celery
-pylint
 pycurl
-coverage
-codeclimate-test-reporter
+requests

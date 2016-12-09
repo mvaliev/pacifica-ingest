@@ -1,0 +1,11 @@
+celery
+codeclimate-test-reporter
+coverage
+docker-py
+MySQL-python
+peewee
+pre-commit
+pylint
+pytest
+radon
+requests

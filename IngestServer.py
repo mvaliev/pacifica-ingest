@@ -1,83 +1,39 @@
 #!/usr/bin/env python
-"""
-ingest Server
-"""
-# disable this for classes Index and Meta (within Index)
-# pylint: disable=too-few-public-methods
-
-from wsgiref.simple_server import make_server
-
+"""Ingest Server Main."""
 import os
 import logging
-
-from ingest_orm import IngestState, read_state, update_state
-
-from ingest_utils import create_invalid_return, create_state_return, get_job_id, \
+from wsgiref.simple_server import make_server
+from ingest.orm import IngestState, read_state, update_state
+from ingest.utils import create_invalid_return, create_state_return, get_job_id, \
                             get_unique_id, receive
+from ingest.backend import tasks
+from ingest.backend.celery_utils import ping_celery
 
-from ingest_backend import tasks
-
-from time import sleep
-
-def ping_celery():
-    """
-    check to see if the celery process to bundle and upload is alive, alive!
-    """
-    ping_process = tasks.ping.delay()
-
-    tries = 0
-    while tries < 5:
-        state = ping_process.state
-        if state is not None:
-            print state
-            if state == "PING" or state == "SUCCESS":
-                return True
-        sleep(1)
-        tries += 1
-
-    return False
 
 def start_ingest(job_id, filepath):
-    """
-    start the celery injest task
-    """
+    """Start the celery injest task."""
     tasks.ingest.delay(job_id, filepath)
 
-#@DB.atomic()
+
 def application(environ, start_response):
-    """
-    The wsgi callback
-    """
-
+    """The wsgi callback."""
     info = environ['PATH_INFO']
-
     if info and info == '/get_state':
-
         job_id = get_job_id(environ)
         record = read_state(job_id)
-
         if record:
             status, response_headers, response_body = create_state_return(record)
             start_response(status, response_headers)
             return [response_body]
-
     elif info and info == '/upload':
-
-        #success = ping_celery()
-        success = True
+        success = ping_celery()
         if success:
-
             # get id from id server
             job_id = get_unique_id()
-
             update_state(job_id, 'OK', 'UPLOADING', 0)
-
             filepath = receive(environ, job_id)
-
             start_ingest(job_id, filepath)
-
             record = read_state(job_id)
-
         else:
             record = IngestState()
             record.state = 'ERROR: Celery is dead'
@@ -97,10 +53,9 @@ def application(environ, start_response):
     start_response(status, response_headers)
     return [response_body]
 
+
 def main():
-    """
-        entry point for main index server
-    """
+    """Entry point for main index server."""
     peewee_logger = logging.getLogger('peewee')
     peewee_logger.setLevel(logging.DEBUG)
     peewee_logger.addHandler(logging.StreamHandler())
@@ -109,11 +64,16 @@ def main():
     main_logger.setLevel(logging.DEBUG)
     main_logger.addHandler(logging.StreamHandler())
 
-    main_logger.info("MYSQL_ENV_MYSQL_DATABASE = " +  os.getenv('MYSQL_ENV_MYSQL_DATABASE'))
-    main_logger.info("MYSQL_PORT_3306_TCP_ADDR = " +  os.getenv('MYSQL_PORT_3306_TCP_ADDR'))
-    main_logger.info("MYSQL_PORT_3306_TCP_PORT = " +  os.getenv('MYSQL_PORT_3306_TCP_PORT'))
-    main_logger.info("MYSQL_ENV_MYSQL_USER = " +  os.getenv('MYSQL_ENV_MYSQL_USER'))
-    main_logger.info("MYSQL_ENV_MYSQL_PASSWORD = " +  os.getenv('MYSQL_ENV_MYSQL_PASSWORD'))
+    msg = {'msg': os.getenv('MYSQL_ENV_MYSQL_DATABASE', 'pacifica_ingest')}
+    main_logger.info('MYSQL_ENV_MYSQL_DATABASE = %(msg)s', msg)
+    msg['msg'] = os.getenv('MYSQL_PORT_3306_TCP_ADDR', '127.0.0.1')
+    main_logger.info('MYSQL_PORT_3306_TCP_ADDR = %(msg)s', msg)
+    msg['msg'] = os.getenv('MYSQL_PORT_3306_TCP_PORT', '3306')
+    main_logger.info('MYSQL_PORT_3306_TCP_PORT = %(msg)s', msg)
+    msg['msg'] = os.getenv('MYSQL_ENV_MYSQL_USER', 'ingest')
+    main_logger.info('MYSQL_ENV_MYSQL_USER = %(msg)s', msg)
+    main_logger.info('MYSQL_ENV_MYSQL_PASSWORD = %(msg)s', msg)
+    msg['msg'] = os.getenv('MYSQL_ENV_MYSQL_PASSWORD', 'ingest')
 
     if not IngestState.table_exists():
         IngestState.create_table()

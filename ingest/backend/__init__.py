@@ -1,6 +1,5 @@
-"""
-Celery boilerplate
-"""
+#!/usr/bin/python
+"""Celery boilerplate."""
 
 from __future__ import absolute_import
 
