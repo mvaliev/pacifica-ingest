@@ -1,12 +1,12 @@
 #!/usr/bin/python
-"""Test curl code."""
+"""Test ingest."""
 import os
 import requests
 
 
 def test_upload():
     """Test the upload."""
-    bundle_path = 'baby.tar'
+    bundle_path = 'test_data/baby.tar'
     print('file size: ' + str(os.path.getsize(bundle_path)))
     with open(bundle_path, 'rb') as filefd:
         req = requests.post(
