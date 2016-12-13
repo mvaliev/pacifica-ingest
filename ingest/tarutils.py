@@ -6,6 +6,9 @@ import json
 import hashlib
 import time
 import requests
+import os
+
+from utils import get_unique_id
 
 
 class FileIngester(object):
@@ -25,7 +28,7 @@ class FileIngester(object):
         self.file_id = file_id
 
     def read(self, size):
-        """Read wrapper for pycurl that calculates the hashcode inline."""
+        """Read wrapper for requests that calculates the hashcode inline."""
         buf = self.fileobj.read(size)
         # running checksum
         self.hashval.update(buf)
@@ -46,14 +49,17 @@ class FileIngester(object):
             size_str = str(size)
             mod_time = time.ctime(info.mtime)
             self.fileobj.seek(0)
+            url = self.server + str(self.file_id)
+
+            headers = {}
+            headers['Last-Modified'] =  mod_time
+            headers['Content-Type'] =  'application/octet-stream'
+            headers['Content-Length'] =  size_str
+
             req = requests.put(
-                self.server + str(self.file_id),
+                url,
                 data=self,
-                headers=(
-                    ('Last-Modified', mod_time),
-                    ('Content-Type', 'application/octet-stream'),
-                    ('Content-Length', size_str)
-                )
+                headers=headers
             )
             self.fileobj.close()
             body = req.text
@@ -88,35 +94,62 @@ class MetaParser(object):
     # entire metadata
     meta = None
     # a map of filenames to hashcodes
-    files = []
+    files = {}
     start_id = -999
     transaction_id = -999
+    file_count = -999
 
-    def __init__(self, transaction_id, start_id):
+    meta_blob = None
+
+    def __init__(self):
         """Constructor."""
-        self.transaction_id = transaction_id
-        self.start_id = start_id
+        pass
 
-    @staticmethod
-    def load_meta(tar):
+    def load_meta(self, tar):
         """Load the metadata from a tar file into searchable structures."""
         string = tar.extractfile('metadata.txt').read()
-        received = json.loads(string)
-        return received
+
+        meta_list = json.loads(string)
+
+        # get the start index for the file
+        self.file_count = file_count(tar)
+        self.transaction_id = get_unique_id(1, 'transaction')
+        self.start_id = get_unique_id(self.file_count, 'file')
+
+        self.files = {}
+
+        # all we care about for now is the hash and the file path
+        id = self.start_id
+        for meta in meta_list:
+            if meta['destinationTable'] == 'Files':
+                meta['_id'] = id
+                #file_element = {}
+                #file_element['id'] = str(id)
+                #file_element['meta'] = meta
+
+                self.files[str(id)] = meta
+
+                #self.files.append(file_element)
+                id+=1
+
+        self.meta_blob = meta_list
 
     def get_hash(self, file_id):
         """Return the hash string for a file name."""
         file_element = self.files[file_id]
-        # remove filetype
-        file_hash = file_element['hash'].replace('sha1:', '')
+        # remove filetype if there is one
+        file_hash = file_element['hashsum'].replace('sha1:', '')
         return file_hash
 
     def get_fname(self, file_id):
-        """Return the hash string for a file name."""
         file_element = self.files[file_id]
-        # remove filetype
-        file_hash = file_element['name']
-        return file_hash
+        name = file_element['name']
+        return name
+
+    def get_subdir(self, file_id):
+        file_element = self.files[file_id]
+        name = file_element['subdir']
+        return name
 
 
 # pylint: disable=too-few-public-methods
@@ -125,25 +158,29 @@ class TarIngester(object):
 
     tar = None
     meta = None
-    server = ''
-    start_id = -999
-    transaction_id = -999
 
-    def __init__(self, tar, meta, server):
+    def __init__(self, tar, meta):
         """Constructor for TarIngester class."""
         self.tar = tar
         self.meta = meta
-        self.server = server
 
     def ingest(self):
-        """Ingest a tar file into the metadata and file archives."""
-        keys = self.meta.files.keys()
-        for file_id in keys:
+        """Ingest a tar file into the file archive."""
+
+        archivei_server = os.getenv('ARCHIVEINTERFACE_SERVER', '127.0.0.1')
+        archivei_port = os.getenv('ARCHIVEINTERFACE_PORT', '8080')
+        archivei_url = 'http://{0}:{1}/'.format(archivei_server, archivei_port)
+
+        for file_id, element in self.meta.files.items():
+            #file_id = element['id']
             file_hash = self.meta.get_hash(file_id)
             name = self.meta.get_fname(file_id)
-            info = self.tar.getmember(name)
+
+            path = self.meta.get_subdir(file_id) + '/' + self.meta.get_fname(file_id)
+
+            info = self.tar.getmember(path)
             print(info.name)
-            ingest = FileIngester(file_hash, self.server, file_id)
+            ingest = FileIngester(file_hash, archivei_url, file_id)
             ingest.upload_file_in_file(info, self.tar)
         return True
 # pylint: enable=too-few-public-methods
