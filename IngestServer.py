@@ -28,8 +28,8 @@ def application(environ, start_response):
     elif info and info == '/upload':
         success = ping_celery()
         if success:
-            # get id from id server
-            job_id = get_unique_id()
+            # get id from id server            
+            job_id = get_unique_id(1, 'transaction')
             update_state(job_id, 'OK', 'UPLOADING', 0)
             filepath = receive(environ, job_id)
             start_ingest(job_id, filepath)

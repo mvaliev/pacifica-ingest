@@ -57,15 +57,18 @@ def create_state_return(record):
     return create_return_params(response_body)
 
 
-def get_unique_id():
+def get_unique_id(range, mode):
     """Return a unique job id from the id server."""
     uniqueid_server = os.getenv('UNIQUEID_SERVER', '127.0.0.1')
     uniqueid_port = os.getenv('UNIQUEID_PORT', '8051')
-    req = requests.get('http://{0}:{1}/getid?range=1&mode=upload_job'.format(uniqueid_server, uniqueid_port))
+    
+    url = 'http://{0}:{1}/getid?range={2}&mode={3}'.format(uniqueid_server, uniqueid_port, range, mode)
+    
+    req = requests.get(url)
     body = req.text
     info = json.loads(body)
-    job_id = info['startIndex']
-    return job_id
+    unique_id = info['startIndex']
+    return unique_id
 
 
 def upload_file(filepath, uid):
