@@ -123,14 +123,13 @@ class MetaParser(object):
         for meta in meta_list:
             if meta['destinationTable'] == 'Files':
                 meta['_id'] = id
-                #file_element = {}
-                #file_element['id'] = str(id)
-                #file_element['meta'] = meta
-
                 self.files[str(id)] = meta
-
-                #self.files.append(file_element)
                 id+=1
+
+        trans = {}
+        trans['destinationTable'] = 'Transactions._id'
+        trans['value'] = self.transaction_id
+        meta_list.append(trans)
 
         self.meta_blob = meta_list
 
@@ -151,6 +150,39 @@ class MetaParser(object):
         name = file_element['subdir']
         return name
 
+    def post_metadata(self):
+        """
+        upload metadata to server
+        """
+        meta_str = json.dumps (self.meta_blob, sort_keys = True, indent=4)
+
+        #print (meta_str)
+
+        #file = open("metablob.json", "w")
+
+        #file.write(meta_str)
+
+        #file.close()
+
+        try:
+            archivei_server = os.getenv('METADATA_SERVER', '127.0.0.1')
+            archivei_port = os.getenv('METADATA_PORT', '8121')
+            archivei_url = 'http://{0}:{1}/ingest'.format(archivei_server, archivei_port)
+
+            headers = {'content-type': 'application/json'}
+
+            r = requests.put(archivei_url, headers=headers, data=meta_str)
+
+            try:
+                l = json.loads(r.content)
+                if l['status'] == 'success':
+                    return True
+            except:
+                print (r.content)
+                return False
+
+        except Exception, e:
+            return True
 
 # pylint: disable=too-few-public-methods
 class TarIngester(object):
