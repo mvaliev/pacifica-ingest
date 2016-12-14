@@ -68,33 +68,34 @@ def get_unique_id(range, mode):
     body = req.text
     info = json.loads(body)
     unique_id = info['startIndex']
+
     return unique_id
 
 
-def upload_file(filepath, uid):
-    """Return a unique job id from the id server."""
-    try:
-        archivei_server = os.getenv('ARCHIVEINTERFACE_SERVER', '127.0.0.1')
-        archivei_port = os.getenv('ARCHIVEINTERFACE_PORT', '8080')
-        archivei_url = 'http://{0}:{1}/'.format(archivei_server, archivei_port)
-        size = os.path.getsize(filepath)
-        file_size = str(size)
-        body = ''
-        with open(filepath, 'rb') as filedesc:
-            req = requests.put(
-                archivei_url + str(uid),
-                data=filedesc,
-                headers=(
-                    ('Last-Modified', 'Sun, 06 Nov 1994 08:49:37 GMT'),
-                    ('Content-Type', 'application/octet-stream'),
-                    ('Content-Length', file_size)
-                )
-            )
-            body = req.text
-        print(body)
-        return body
-    except Exception as ex:
-        print(ex)
+#def upload_file(filepath, uid):
+#    """Return a unique job id from the id server."""
+#    try:
+#        archivei_server = os.getenv('ARCHIVEINTERFACE_SERVER', '127.0.0.1')
+#        archivei_port = os.getenv('ARCHIVEINTERFACE_PORT', '8080')
+#        archivei_url = 'http://{0}:{1}/'.format(archivei_server, archivei_port)
+#        size = os.path.getsize(filepath)
+#        file_size = str(size)
+#        body = ''
+#        with open(filepath, 'rb') as filedesc:
+#            req = requests.put(
+#                archivei_url + str(uid),
+#                data=filedesc,
+#                headers=(
+#                    ('Last-Modified', 'Sun, 06 Nov 1994 08:49:37 GMT'),
+#                    ('Content-Type', 'application/octet-stream'),
+#                    ('Content-Length', file_size)
+#                )
+#            )
+#            body = req.text
+#        print(body)
+#        return body
+#    except Exception as ex:
+#        print(ex)
 
 
 def rename_bundle(environ, job_id):
