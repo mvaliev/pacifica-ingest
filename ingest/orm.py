@@ -46,7 +46,6 @@ def update_state(job_id, state, task, task_percent):
         record.task_percent = task_percent
         record.save()
 
-
 def read_state(job_id):
     """Return the state of an ingest job as a json object."""
     if job_id and job_id >= 0:
