@@ -4,7 +4,7 @@ import os
 import logging
 from wsgiref.simple_server import make_server
 from ingest.orm import IngestState, read_state, update_state
-from ingest.utils import create_invalid_return, create_state_return, get_job_id, \
+from ingest.utils import create_invalid_return, create_state_return, get_unique_id, \
                             get_unique_id, receive
 from ingest.backend import tasks
 from ingest.backend.celery_utils import ping_celery
@@ -12,7 +12,7 @@ from ingest.backend.celery_utils import ping_celery
 
 def start_ingest(job_id, filepath):
     """Start the celery injest task."""
-    tasks.ingest.delay(job_id, filepath)
+    tasks.ingest(job_id, filepath)
 
 
 def application(environ, start_response):
@@ -26,14 +26,25 @@ def application(environ, start_response):
             start_response(status, response_headers)
             return [response_body]
     elif info and info == '/upload':
-        success = ping_celery()
-        if success:
-            # get id from id server            
-            job_id = get_unique_id(1, 'transaction')
+
+        #celery_is_alive = ping_celery()
+
+        celery_is_alive = True
+        if celery_is_alive:
+            # get temporary id from id server
+            job_id = get_unique_id(1, 'upload_job')
             update_state(job_id, 'OK', 'UPLOADING', 0)
-            filepath = receive(environ, job_id)
-            start_ingest(job_id, filepath)
+
+            try:
+                filepath = receive(environ, job_id)
+            except Exception, e:                
+                update_state(job_id, 'FAILED', 'receive bundle', 100)
+
+            if filepath != '':
+                start_ingest(job_id, filepath)
+
             record = read_state(job_id)
+
         else:
             record = IngestState()
             record.state = 'ERROR: Celery is dead'
