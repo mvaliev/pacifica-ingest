@@ -99,7 +99,7 @@ class MetaParser(object):
     transaction_id = -999
     file_count = -999
 
-    meta_blob = None
+    meta_str = ''
 
     def __init__(self):
         """Constructor."""
@@ -131,7 +131,7 @@ class MetaParser(object):
         trans['value'] = self.transaction_id
         meta_list.append(trans)
 
-        self.meta_blob = meta_list
+        self.meta_str = json.dumps (meta_list, sort_keys = True, indent=4)
 
     def get_hash(self, file_id):
         """Return the hash string for a file name."""
@@ -154,16 +154,6 @@ class MetaParser(object):
         """
         upload metadata to server
         """
-        meta_str = json.dumps (self.meta_blob, sort_keys = True, indent=4)
-
-        #print (meta_str)
-
-        #file = open("metablob.json", "w")
-
-        #file.write(meta_str)
-
-        #file.close()
-
         try:
             archivei_server = os.getenv('METADATA_SERVER', '127.0.0.1')
             archivei_port = os.getenv('METADATA_PORT', '8121')
@@ -171,7 +161,7 @@ class MetaParser(object):
 
             headers = {'content-type': 'application/json'}
 
-            r = requests.put(archivei_url, headers=headers, data=meta_str)
+            r = requests.put(archivei_url, headers=headers, data=self.meta_str)
 
             try:
                 l = json.loads(r.content)
@@ -182,7 +172,7 @@ class MetaParser(object):
                 return False
 
         except Exception, e:
-            return True
+            return False
 
 # pylint: disable=too-few-public-methods
 class TarIngester(object):
