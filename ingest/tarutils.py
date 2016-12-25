@@ -5,10 +5,10 @@ import tarfile
 import json
 import hashlib
 import time
-import requests
 import os
+import requests
 
-from utils import get_unique_id
+from ingest.utils import get_unique_id
 
 
 class FileIngester(object):
@@ -119,12 +119,12 @@ class MetaParser(object):
         self.files = {}
 
         # all we care about for now is the hash and the file path
-        id = self.start_id
+        file_id = self.start_id
         for meta in meta_list:
             if meta['destinationTable'] == 'Files':
-                meta['_id'] = id
-                self.files[str(id)] = meta
-                id += 1
+                meta['_id'] = file_id
+                self.files[str(file_id)] = meta
+                file_id += 1
 
         trans = {}
         trans['destinationTable'] = 'Transactions._id'
@@ -161,18 +161,19 @@ class MetaParser(object):
 
             headers = {'content-type': 'application/json'}
 
-            r = requests.put(archivei_url, headers=headers, data=self.meta_str)
-
+            req = requests.put(archivei_url, headers=headers, data=self.meta_str)
             try:
-                l = json.loads(r.content)
-                if l['status'] == 'success':
+                if req.json['status'] == 'success':
                     return True
-            except:
-                print (r.content)
+            # pylint: disable=broad-except
+            except Exception:
+                print(req.content)
                 return False
-
+            # pylint: enable=broad-except
+        # pylint: disable=broad-except
         except Exception:
             return False
+        # pylint: enable=broad-except
 
 
 # pylint: disable=too-few-public-methods
@@ -193,7 +194,7 @@ class TarIngester(object):
         archivei_port = os.getenv('ARCHIVEINTERFACE_PORT', '8080')
         archivei_url = 'http://{0}:{1}/'.format(archivei_server, archivei_port)
 
-        for file_id, element in self.meta.files.items():
+        for file_id in self.meta.files.keys():
             # file_id = element['id']
             file_hash = self.meta.get_hash(file_id)
             name = self.meta.get_fname(file_id)

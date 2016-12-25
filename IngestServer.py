@@ -36,8 +36,10 @@ def application(environ, start_response):
 
             try:
                 filepath = receive(environ, job_id)
+            # pylint: disable=broad-except
             except Exception as exc:
                 update_state(job_id, 'FAILED', 'receive bundle ({0})'.format(exc), 100)
+            # pylint: enable=broad-except
 
             if filepath != '':
                 start_ingest(job_id, filepath)

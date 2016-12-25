@@ -2,20 +2,17 @@
 """Module that contains all the amqp tasks that support the ingest infrastructure."""
 from __future__ import absolute_import, print_function
 # from time import sleep
-from celery import current_task
-from .celery import INGEST_APP
 import os
 import requests
-import json
-
 # from ingest.orm import IngestState, BaseModel, update_state, read_state
 # from ingest.utils import get_job_id
 # from ingest import tarutils
 from ingest.tarutils import open_tar
 from ingest.tarutils import MetaParser
 from ingest.tarutils import TarIngester
-
 from ingest.orm import update_state
+from celery import current_task
+from .celery import INGEST_APP
 
 
 @INGEST_APP.task(ignore_result=False)
@@ -30,7 +27,7 @@ def ingest(job_id, filepath):
     meta.load_meta(tar)
     update_state(job_id, 'OK', 'load metadata', 100)
 
-    ingest = TarIngester(tar, meta)
+    ingest_obj = TarIngester(tar, meta)
 
     # validate policy
     success = validate_meta(meta.meta_str)
@@ -40,7 +37,7 @@ def ingest(job_id, filepath):
     update_state(job_id, 'OK', 'Policy Validation', 100)
 
     update_state(job_id, 'OK', 'ingest files', 0)
-    success = ingest.ingest()
+    success = ingest_obj.ingest()
     if not success:
         # rollback files
         update_state(job_id, 'FAILED', 'ingest files', 0)
@@ -65,18 +62,20 @@ def validate_meta(meta_str):
 
         headers = {'content-type': 'application/json'}
 
-        r = requests.post(archivei_url, headers=headers, data=meta_str)
+        req = requests.post(archivei_url, headers=headers, data=meta_str)
 
         try:
-            l = json.loads(r.content)
-            if l['status'] == 'success':
+            if req.json['status'] == 'success':
                 return True
+        # pylint: disable=broad-except
         except Exception:
-            print (r.content)
+            print (req.content)
             return False
-
+        # pylint: enable=broad-except
+    # pylint: disable=broad-except
     except Exception:
         return False
+    # pylint: enable=broad-except
 
 
 @INGEST_APP.task(ignore_result=False)
