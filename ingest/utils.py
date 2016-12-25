@@ -61,9 +61,9 @@ def get_unique_id(range, mode):
     """Return a unique job id from the id server."""
     uniqueid_server = os.getenv('UNIQUEID_SERVER', '127.0.0.1')
     uniqueid_port = os.getenv('UNIQUEID_PORT', '8051')
-    
+
     url = 'http://{0}:{1}/getid?range={2}&mode={3}'.format(uniqueid_server, uniqueid_port, range, mode)
-    
+
     req = requests.get(url)
     body = req.text
     info = json.loads(body)
@@ -72,7 +72,7 @@ def get_unique_id(range, mode):
     return unique_id
 
 
-#def upload_file(filepath, uid):
+# def upload_file(filepath, uid):
 #    """Return a unique job id from the id server."""
 #    try:
 #        archivei_server = os.getenv('ARCHIVEINTERFACE_SERVER', '127.0.0.1')
