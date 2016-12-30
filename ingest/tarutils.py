@@ -199,7 +199,7 @@ class TarIngester(object):
             file_hash = self.meta.get_hash(file_id)
             name = self.meta.get_fname(file_id)
 
-            path = os.path.join(self.meta.get_subdir(file_id), name)
+            path = self.meta.get_subdir(file_id)+'/'+name
 
             info = self.tar.getmember(path)
             print(info.name)
