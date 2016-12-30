@@ -39,7 +39,7 @@
         "_id": 34,
         "destinationTable": "Files",
         "ctime": "Tue Nov 29 14:09:05 PST 2016",
-        "subdir": "a/b"
+        "subdir": "data/a/b"
     },
     {
         "size": 47,
@@ -50,6 +50,6 @@
         "_id": 35,
         "destinationTable": "Files",
         "ctime": "Tue Nov 29 14:09:05 PST 2016",
-        "subdir": "a/b"
+        "subdir": "data/a/b"
     }
 ]
