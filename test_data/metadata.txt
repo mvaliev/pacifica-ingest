@@ -34,20 +34,22 @@
         "size": 128,
         "mimetype": "text/plain",
         "name": "foo.txt",
+        "hashsum": "d3b07384d113edec49eaa6238ad5ff00",
         "mtime": "Tue Nov 29 14:09:05 PST 2016",
         "_id": 34,
         "destinationTable": "Files",
         "ctime": "Tue Nov 29 14:09:05 PST 2016",
-        "subdir": "a/b/"
+        "subdir": "data/a/b"
     },
     {
         "size": 47,
         "mimetype": "text/plain",
         "name": "bar.txt",
+        "hashsum": "c157a79031e1c40f85931829bc5fc552",
         "mtime": "Tue Nov 29 14:09:05 PST 2016",
         "_id": 35,
         "destinationTable": "Files",
         "ctime": "Tue Nov 29 14:09:05 PST 2016",
-        "subdir": "a/b/"
+        "subdir": "data/a/b"
     }
 ]

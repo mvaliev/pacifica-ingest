@@ -1,5 +1,5 @@
 -   repo: git://github.com/pre-commit/pre-commit-hooks
-    sha: 96fb7fa10f2f4c11ed33482a9ad7474251e5e97f
+    sha: 9573c13884bdfd563c989311e432dcb11e6a1830
     hooks:
     -   id: trailing-whitespace
     -   id: flake8
