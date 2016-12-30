@@ -27,5 +27,5 @@ else
   pip install codeclimate-test-reporter coverage nose pytest
 fi
 pushd test_data
-tar -cf ../baby.tar metadata.txt data
+tar -cf baby.tar metadata.txt data
 popd

@@ -4,10 +4,9 @@ import os
 import logging
 from wsgiref.simple_server import make_server
 from ingest.orm import IngestState, read_state, update_state
-from ingest.utils import create_invalid_return, create_state_return, get_unique_id, \
-                            get_unique_id, receive
+from ingest.utils import create_invalid_return, create_state_return, \
+                            get_unique_id, get_job_id, receive
 from ingest.backend import tasks
-from ingest.backend.celery_utils import ping_celery
 
 
 def start_ingest(job_id, filepath):
@@ -27,7 +26,7 @@ def application(environ, start_response):
             return [response_body]
     elif info and info == '/upload':
 
-        #celery_is_alive = ping_celery()
+        # celery_is_alive = ping_celery()
 
         celery_is_alive = True
         if celery_is_alive:
@@ -37,8 +36,10 @@ def application(environ, start_response):
 
             try:
                 filepath = receive(environ, job_id)
-            except Exception, e:                
-                update_state(job_id, 'FAILED', 'receive bundle', 100)
+            # pylint: disable=broad-except
+            except Exception as exc:
+                update_state(job_id, 'FAILED', 'receive bundle ({0})'.format(exc), 100)
+            # pylint: enable=broad-except
 
             if filepath != '':
                 start_ingest(job_id, filepath)

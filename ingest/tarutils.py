@@ -5,10 +5,10 @@ import tarfile
 import json
 import hashlib
 import time
-import requests
 import os
+import requests
 
-from utils import get_unique_id
+from ingest.utils import get_unique_id
 
 
 class FileIngester(object):
@@ -52,9 +52,9 @@ class FileIngester(object):
             url = self.server + str(self.file_id)
 
             headers = {}
-            headers['Last-Modified'] =  mod_time
-            headers['Content-Type'] =  'application/octet-stream'
-            headers['Content-Length'] =  size_str
+            headers['Last-Modified'] = mod_time
+            headers['Content-Type'] = 'application/octet-stream'
+            headers['Content-Length'] = size_str
 
             req = requests.put(
                 url,
@@ -119,19 +119,19 @@ class MetaParser(object):
         self.files = {}
 
         # all we care about for now is the hash and the file path
-        id = self.start_id
+        file_id = self.start_id
         for meta in meta_list:
             if meta['destinationTable'] == 'Files':
-                meta['_id'] = id
-                self.files[str(id)] = meta
-                id+=1
+                meta['_id'] = file_id
+                self.files[str(file_id)] = meta
+                file_id += 1
 
         trans = {}
         trans['destinationTable'] = 'Transactions._id'
         trans['value'] = self.transaction_id
         meta_list.append(trans)
 
-        self.meta_str = json.dumps (meta_list, sort_keys = True, indent=4)
+        self.meta_str = json.dumps(meta_list, sort_keys=True, indent=4)
 
     def get_hash(self, file_id):
         """Return the hash string for a file name."""
@@ -141,19 +141,19 @@ class MetaParser(object):
         return file_hash
 
     def get_fname(self, file_id):
+        """Get the file name from the file ID."""
         file_element = self.files[file_id]
         name = file_element['name']
         return name
 
     def get_subdir(self, file_id):
+        """Get the sub directory element from the file ID."""
         file_element = self.files[file_id]
         name = file_element['subdir']
         return name
 
     def post_metadata(self):
-        """
-        upload metadata to server
-        """
+        """Upload metadata to server."""
         try:
             archivei_server = os.getenv('METADATA_SERVER', '127.0.0.1')
             archivei_port = os.getenv('METADATA_PORT', '8121')
@@ -161,18 +161,20 @@ class MetaParser(object):
 
             headers = {'content-type': 'application/json'}
 
-            r = requests.put(archivei_url, headers=headers, data=self.meta_str)
-
+            req = requests.put(archivei_url, headers=headers, data=self.meta_str)
             try:
-                l = json.loads(r.content)
-                if l['status'] == 'success':
+                if req.json['status'] == 'success':
                     return True
-            except:
-                print (r.content)
+            # pylint: disable=broad-except
+            except Exception:
+                print(req.content)
                 return False
-
-        except Exception, e:
+            # pylint: enable=broad-except
+        # pylint: disable=broad-except
+        except Exception:
             return False
+        # pylint: enable=broad-except
+
 
 # pylint: disable=too-few-public-methods
 class TarIngester(object):
@@ -188,17 +190,16 @@ class TarIngester(object):
 
     def ingest(self):
         """Ingest a tar file into the file archive."""
-
         archivei_server = os.getenv('ARCHIVEINTERFACE_SERVER', '127.0.0.1')
         archivei_port = os.getenv('ARCHIVEINTERFACE_PORT', '8080')
         archivei_url = 'http://{0}:{1}/'.format(archivei_server, archivei_port)
 
-        for file_id, element in self.meta.files.items():
-            #file_id = element['id']
+        for file_id in self.meta.files.keys():
+            # file_id = element['id']
             file_hash = self.meta.get_hash(file_id)
             name = self.meta.get_fname(file_id)
 
-            path = self.meta.get_subdir(file_id) + '/' + self.meta.get_fname(file_id)
+            path = os.path.join(self.meta.get_subdir(file_id), name)
 
             info = self.tar.getmember(path)
             print(info.name)

@@ -2,14 +2,14 @@
 import unittest
 from ingest.orm import IngestState, BaseModel, update_state, read_state
 from ingest.utils import get_unique_id, get_job_id
-from ingest import tarutils
+# from ingest import tarutils
 from ingest.tarutils import open_tar
 from ingest.tarutils import MetaParser
 from ingest.tarutils import TarIngester
 from ingest.backend.tasks import ingest
 from playhouse.test_utils import test_database
 from peewee import SqliteDatabase
-import os
+# import os
 
 
 # pylint: disable=too-few-public-methods
@@ -29,6 +29,7 @@ class IndexServerUnitTests(unittest.TestCase):
         meta.load_meta(tar)
 
     def test_tasks(self):
+        """Test the ingest task."""
         job_id = get_unique_id(1, 'upload_job')
 
         ingest(job_id, 'test_data/baby.tar')
@@ -57,7 +58,7 @@ class IndexServerUnitTests(unittest.TestCase):
         # success = MetaUpload()
         ingest.ingest()
 
-    #def test_upload_file(self):
+    # def test_upload_file(self):
     #    """Test uploading a single file."""
     #    return
     #    for i in range(1, 20):
