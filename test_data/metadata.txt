@@ -1,9 +1,5 @@
 [
     {
-        "destinationTable": "Transactions._id",
-        "value": 1234
-    },
-    {
         "destinationTable": "Transactions.submitter",
         "value": 10
     },
