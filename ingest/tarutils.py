@@ -163,7 +163,7 @@ class MetaParser(object):
 
             req = requests.put(archivei_url, headers=headers, data=self.meta_str)
             try:
-                if req.json['status'] == 'success':
+                if req.json()['status'] == 'success':
                     return True
             # pylint: disable=broad-except
             except Exception:
