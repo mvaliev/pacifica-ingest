@@ -5,6 +5,7 @@ sudo service mysql stop
 if [ -z "$RUN_LINTS" ]; then
   docker-compose up -d
   docker-compose stop ingestbackend ingestfrontend
+  docker run -it --rm --net=pacificaingest_default -e METADATA_URL=http://metadataserver:8121 -e PYTHONPATH=/usr/src/app pacifica/metadata python test_files/loadit.py
 fi
 case "$TRAVIS_PYTHON_VERSION" in
   pypy) export PYPY_VERSION="pypy-2.6.1" ;;
