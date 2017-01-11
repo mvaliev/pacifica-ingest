@@ -52,6 +52,7 @@ def ingest(job_id, filepath):
         return
     update_state(job_id, 'OK', 'ingest metadata', 100)
 
+
 def validate_meta(meta_str):
     """Validate metadata."""
     try:
