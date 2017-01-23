@@ -11,7 +11,7 @@ from ingest.backend import tasks
 
 def start_ingest(job_id, filepath):
     """Start the celery injest task."""
-    tasks.ingest(job_id, filepath)
+    tasks.ingest.delay(job_id, filepath)
 
 
 def application(environ, start_response):
