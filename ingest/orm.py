@@ -28,6 +28,41 @@ class IngestState(BaseModel):
     task = peewee.CharField(db_column='task')
     task_percent = peewee.DecimalField(db_column='task_percent')
 
+    @classmethod
+    def atomic(cls):
+        """Do the DB atomic bits."""
+        # pylint: disable=no-member
+        return cls._meta.database.atomic()
+        # pylint: enable=no-member
+
+    @classmethod
+    def database_connect(cls):
+        """
+        Make sure database is connected.
+
+        Trying to connect a second
+        time doesnt cause any problems.
+        """
+        # pylint: disable=no-member
+        cls._meta.database.connect()
+        # pylint: enable=no-member
+
+    @classmethod
+    def database_close(cls):
+        """
+        Close the database connection.
+
+        Closing already closed database
+        throws an error so catch it and continue on.
+        """
+        try:
+            # pylint: disable=no-member
+            cls._meta.database.close()
+            # pylint: enable=no-member
+        except peewee.ProgrammingError:
+            # error for closing an already closed database so continue on
+            return
+
     class Meta(object):
         """Map to uniqueindex table."""
 
@@ -38,6 +73,7 @@ class IngestState(BaseModel):
 def update_state(job_id, state, task, task_percent):
     """Update the state of an ingest job."""
     if job_id and job_id >= 0:
+        IngestState.database_connect()
         record = IngestState.get_or_create(job_id=job_id,
                                            defaults={'task': '', 'task_percent': 0, 'state': ''})[0]
 
@@ -45,10 +81,12 @@ def update_state(job_id, state, task, task_percent):
         record.task = task
         record.task_percent = task_percent
         record.save()
+        IngestState.database_close()
 
 
 def read_state(job_id):
     """Return the state of an ingest job as a json object."""
+    IngestState.database_connect()
     if job_id and job_id >= 0:
         record = IngestState.get(job_id=job_id)
     else:
@@ -56,5 +94,5 @@ def read_state(job_id):
         record.state = 'DATA_ACCESS_ERROR'
         record.task = 'read_state'
         record.task_percent = 0
-
+    IngestState.database_close()
     return record
