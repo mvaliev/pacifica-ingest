@@ -2,7 +2,6 @@
 """Celery utility functions."""
 from __future__ import absolute_import, print_function
 from time import sleep
-import subprocess
 from ingest.backend import tasks
 
 
@@ -19,23 +18,3 @@ def ping_celery():
         sleep(1)
         tries += 1
     return False
-
-
-def start_celery():
-    """Start the celery process."""
-    alive = ping_celery()
-    if not alive:
-        try:
-            print('attempting to start Celery')
-            subprocess.Popen('celery -A UploadServer worker --loglevel=info', shell=True)
-        # pylint: disable=broad-except
-        except Exception as ex:
-            print(ex)
-        # pylint: enable=broad-except
-    count = 0
-    alive = False
-    while not alive and count < 10:
-        sleep(1)
-        alive = ping_celery()
-        count = count + 1
-    return alive

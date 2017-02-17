@@ -26,7 +26,7 @@ class IndexServerUnitTests(unittest.TestCase):
         tar = open_tar('test_data/baby.tar')
 
         meta = MetaParser()
-        meta.load_meta(tar)
+        meta.load_meta(tar, 1)
 
     def test_tasks(self):
         """Test the ingest task."""
@@ -39,7 +39,7 @@ class IndexServerUnitTests(unittest.TestCase):
         tar = open_tar('test_data/baby.tar')
 
         meta = MetaParser()
-        meta.load_meta(tar)
+        meta.load_meta(tar, 1)
         success = meta.post_metadata()
 
         assert(success)
@@ -48,7 +48,7 @@ class IndexServerUnitTests(unittest.TestCase):
         """Test moving individual files to the archive files are validated inline with the upload."""
         tar = open_tar('test_data/baby.tar')
         meta = MetaParser()
-        meta.load_meta(tar)
+        meta.load_meta(tar, 1)
 
         ingest = TarIngester(tar, meta)
         # validate archive process
@@ -57,13 +57,6 @@ class IndexServerUnitTests(unittest.TestCase):
         #     rollback()
         # success = MetaUpload()
         ingest.ingest()
-
-    # def test_upload_file(self):
-    #    """Test uploading a single file."""
-    #    return
-    #    for i in range(1, 20):
-    #        print('from file:'.format(str(i)))
-    #        upload_file('setup.py', 1)
 
     def test_update_state(self):
         """Test return and update of unique index."""

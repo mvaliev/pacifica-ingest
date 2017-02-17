@@ -12,7 +12,7 @@ from ingest.tarutils import MetaParser
 from ingest.tarutils import TarIngester
 from ingest.orm import update_state
 from celery import current_task
-from .celery import INGEST_APP
+from .celery_ingest import INGEST_APP
 
 
 @INGEST_APP.task(ignore_result=False)
@@ -24,7 +24,7 @@ def ingest(job_id, filepath):
 
     update_state(job_id, 'OK', 'load metadata', 0)
     meta = MetaParser()
-    meta.load_meta(tar)
+    meta.load_meta(tar, job_id)
     update_state(job_id, 'OK', 'load metadata', 100)
 
     ingest_obj = TarIngester(tar, meta)

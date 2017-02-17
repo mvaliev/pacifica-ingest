@@ -55,3 +55,5 @@ docs/_build/
 
 # PyBuilder
 target/
+celery_worker_state
+db.sqlite3

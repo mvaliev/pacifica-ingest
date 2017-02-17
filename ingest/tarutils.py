@@ -105,15 +105,17 @@ class MetaParser(object):
         """Constructor."""
         pass
 
-    def load_meta(self, tar):
+    def load_meta(self, tar, job_id):
         """Load the metadata from a tar file into searchable structures."""
+        # transaction id is the unique upload job id created by the ingest frontend
+        self.transaction_id = job_id
+
         string = tar.extractfile('metadata.txt').read()
 
         meta_list = json.loads(string)
 
         # get the start index for the file
         self.file_count = file_count(tar)
-        self.transaction_id = get_unique_id(1, 'transaction')
         self.start_id = get_unique_id(self.file_count, 'file')
 
         self.files = {}
@@ -155,13 +157,13 @@ class MetaParser(object):
     def post_metadata(self):
         """Upload metadata to server."""
         try:
-            archivei_server = os.getenv('METADATA_SERVER', '127.0.0.1')
-            archivei_port = os.getenv('METADATA_PORT', '8121')
-            archivei_url = 'http://{0}:{1}/ingest'.format(archivei_server, archivei_port)
+            archive_server = os.getenv('METADATA_SERVER', '127.0.0.1')
+            archive_port = os.getenv('METADATA_PORT', '8121')
+            archive_url = 'http://{0}:{1}/ingest'.format(archive_server, archive_port)
 
             headers = {'content-type': 'application/json'}
 
-            req = requests.put(archivei_url, headers=headers, data=self.meta_str)
+            req = requests.put(archive_url, headers=headers, data=self.meta_str)
             try:
                 if req.json()['status'] == 'success':
                     return True
@@ -190,9 +192,9 @@ class TarIngester(object):
 
     def ingest(self):
         """Ingest a tar file into the file archive."""
-        archivei_server = os.getenv('ARCHIVEINTERFACE_SERVER', '127.0.0.1')
-        archivei_port = os.getenv('ARCHIVEINTERFACE_PORT', '8080')
-        archivei_url = 'http://{0}:{1}/'.format(archivei_server, archivei_port)
+        archive_server = os.getenv('ARCHIVEINTERFACE_SERVER', '127.0.0.1')
+        archive_port = os.getenv('ARCHIVEINTERFACE_PORT', '8080')
+        archive_url = 'http://{0}:{1}/'.format(archive_server, archive_port)
 
         for file_id in self.meta.files.keys():
             # file_id = element['id']
@@ -203,7 +205,7 @@ class TarIngester(object):
 
             info = self.tar.getmember(path)
             print(info.name)
-            ingest = FileIngester(file_hash, archivei_url, file_id)
+            ingest = FileIngester(file_hash, archive_url, file_id)
             ingest.upload_file_in_file(info, self.tar)
         return True
 # pylint: enable=too-few-public-methods
