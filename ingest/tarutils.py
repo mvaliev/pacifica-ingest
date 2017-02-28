@@ -117,7 +117,6 @@ class MetaParser(object):
         # get the start index for the file
         self.file_count = file_count(tar)
         self.start_id = get_unique_id(self.file_count, 'file')
-
         self.files = {}
 
         # all we care about for now is the hash and the file path
@@ -125,6 +124,7 @@ class MetaParser(object):
         for meta in meta_list:
             if meta['destinationTable'] == 'Files':
                 meta['_id'] = file_id
+                meta['hashtype'], meta['hashsum'] = self.get_hash(file_id)
                 self.files[str(file_id)] = meta
                 file_id += 1
 
@@ -132,15 +132,14 @@ class MetaParser(object):
         trans['destinationTable'] = 'Transactions._id'
         trans['value'] = self.transaction_id
         meta_list.append(trans)
-
         self.meta_str = json.dumps(meta_list, sort_keys=True, indent=4)
 
     def get_hash(self, file_id):
         """Return the hash string for a file name."""
         file_element = self.files[file_id]
-        # remove filetype if there is one
-        file_hash = file_element['hashsum'].replace('sha1:', '')
-        return file_hash
+        # remove filetype if there is
+        hash_type, file_hash = file_element['hashsum'].split(':')
+        return hash_type, file_hash
 
     def get_fname(self, file_id):
         """Get the file name from the file ID."""
@@ -198,7 +197,7 @@ class TarIngester(object):
 
         for file_id in self.meta.files.keys():
             # file_id = element['id']
-            file_hash = self.meta.get_hash(file_id)
+            hashtype, file_hash = self.meta.get_hash(file_id)
             name = self.meta.get_fname(file_id)
 
             path = self.meta.get_subdir(file_id)+'/'+name
