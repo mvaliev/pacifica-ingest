@@ -34,7 +34,9 @@
         "mtime": "Tue Nov 29 14:09:05 PST 2016",
         "destinationTable": "Files",
         "ctime": "Tue Nov 29 14:09:05 PST 2016",
-        "subdir": "data/a/b"
+        "subdir": "data/a/b",
+        "hashtype": "md5",
+        "hashsum": "d3b07384d113edec49eaa6238ad5ff00"
     },
     {
         "size": 47,
@@ -44,6 +46,8 @@
         "mtime": "Tue Nov 29 14:09:05 PST 2016",
         "destinationTable": "Files",
         "ctime": "Tue Nov 29 14:09:05 PST 2016",
-        "subdir": "data/a/b"
+        "subdir": "data/a/b",
+        "hashtype": "md5",
+        "hashsum": "c157a79031e1c40f85931829bc5fc552"
     }
 ]

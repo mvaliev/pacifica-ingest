@@ -1,16 +1,16 @@
 # Pacifica Ingest
-[![Build Status](https://travis-ci.org/EMSL-MSC/pacifica-ingest.svg?branch=master)](https://travis-ci.org/EMSL-MSC/pacifica-ingest)
-[![Code Climate](https://codeclimate.com/github/EMSL-MSC/pacifica-ingest/badges/gpa.svg)](https://codeclimate.com/github/EMSL-MSC/pacifica-ingest)
-[![Test Coverage](https://codeclimate.com/github/EMSL-MSC/pacifica-ingest/badges/coverage.svg)](https://codeclimate.com/github/EMSL-MSC/pacifica-ingest/coverage)
-[![Issue Count](https://codeclimate.com/github/EMSL-MSC/pacifica-ingest/badges/issue_count.svg)](https://codeclimate.com/github/EMSL-MSC/pacifica-ingest)
+[![Build Status](https://travis-ci.org/pacifica/pacifica-ingest.svg?branch=master)](https://travis-ci.org/pacifica/pacifica-ingest)
+[![Code Climate](https://codeclimate.com/github/pacifica/pacifica-ingest/badges/gpa.svg)](https://codeclimate.com/github/pacifica/pacifica-ingest)
+[![Test Coverage](https://codeclimate.com/github/pacifica/pacifica-ingest/badges/coverage.svg)](https://codeclimate.com/github/pacifica/pacifica-ingest/coverage)
+[![Issue Count](https://codeclimate.com/github/pacifica/pacifica-ingest/badges/issue_count.svg)](https://codeclimate.com/github/pacifica/pacifica-ingest)
 
 ## Docker Badges
-[![Frontend Stars](https://img.shields.io/docker/stars/pacifica/ingest-frontend.svg?maxAge=2592000)](https://hub.docker.com/r/pacifica/ingest-frontend)
-[![Backend Stars](https://img.shields.io/docker/stars/pacifica/ingest-backend.svg?maxAge=2592000)](https://hub.docker.com/r/pacifica/ingest-backend)
-[![Frontend Pulls](https://img.shields.io/docker/pulls/pacifica/ingest-frontend.svg?maxAge=2592000)](https://hub.docker.com/r/pacifica/ingest-frontend)
-[![Backend Pulls](https://img.shields.io/docker/pulls/pacifica/ingest-backend.svg?maxAge=2592000)](https://hub.docker.com/r/pacifica/ingest-backend)
-[![Frontend Automated build](https://img.shields.io/docker/automated/pacifica/ingest-frontend.svg?maxAge=2592000)](https://hub.docker.com/r/pacifica/ingest-frontend)
-[![Backend Automated build](https://img.shields.io/docker/automated/pacifica/ingest-backend.svg?maxAge=2592000)](https://hub.docker.com/r/pacifica/ingest-backend)
+[![Frontend Stars](https://img.shields.io/docker/stars/pacifica/ingest-frontend.svg?maxAge=2592000)](https://cloud.docker.com/swarm/pacifica/repository/docker/pacifica/ingest-frontend/general)
+[![Backend Stars](https://img.shields.io/docker/stars/pacifica/ingest-backend.svg?maxAge=2592000)](https://cloud.docker.com/swarm/pacifica/repository/docker/pacifica/ingest-backend/general)
+[![Frontend Pulls](https://img.shields.io/docker/pulls/pacifica/ingest-frontend.svg?maxAge=2592000)](https://cloud.docker.com/swarm/pacifica/repository/docker/pacifica/ingest-frontend/general)
+[![Backend Pulls](https://img.shields.io/docker/pulls/pacifica/ingest-backend.svg?maxAge=2592000)](https://cloud.docker.com/swarm/pacifica/repository/docker/pacifica/ingest-backend/general)
+[![Frontend Automated build](https://img.shields.io/docker/automated/pacifica/ingest-frontend.svg?maxAge=2592000)](https://cloud.docker.com/swarm/pacifica/repository/docker/pacifica/ingest-frontend/builds)
+[![Backend Automated build](https://img.shields.io/docker/automated/pacifica/ingest-backend.svg?maxAge=2592000)](https://cloud.docker.com/swarm/pacifica/repository/docker/pacifica/ingest-backend/builds)
 
 Pacifica data ingest service to process and validate incoming data from the uploader.
 
