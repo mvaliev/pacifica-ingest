@@ -154,9 +154,21 @@ class MetaParser(object):
         name = file_element['subdir']
         return name
 
+    def clean_metadata(self):
+        """clean /data from filepaths."""
+        meta_list = json.loads(self.meta_str)
+
+        for meta in meta_list:
+            if meta['destinationTable'] == 'Files':
+                meta['subdir'] = get_clipped(meta['subdir'])
+
+        self.meta_str = json.dumps(meta_list, sort_keys=True, indent=4)
+
     def post_metadata(self):
         """Upload metadata to server."""
         try:
+            self.clean_metadata()
+
             archive_server = os.getenv('METADATA_SERVER', '127.0.0.1')
             archive_port = os.getenv('METADATA_PORT', '8121')
             archive_url = 'http://{0}:{1}/ingest'.format(archive_server, archive_port)
@@ -176,6 +188,13 @@ class MetaParser(object):
         except Exception:
             return False
         # pylint: enable=broad-except
+
+
+def get_clipped(fname):
+    """Return a file path with the data separator removed."""
+    if fname.startswith('data/'):
+        fname = fname[5:]
+    return fname
 
 
 # pylint: disable=too-few-public-methods
@@ -209,11 +228,6 @@ class TarIngester(object):
             ingest.upload_file_in_file(info, self.tar)
         return True
 # pylint: enable=too-few-public-methods
-
-
-def get_clipped(fname):
-    """Return a file path with the data separator removed."""
-    return fname.replace('data/', '')
 
 
 def open_tar(fpath):
