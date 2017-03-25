@@ -1,12 +1,25 @@
 #!/usr/bin/env python
 """Ingest Server Main."""
 import os
+import sys
+import signal
 import logging
 from wsgiref.simple_server import make_server
 from ingest.orm import IngestState, read_state, update_state
 from ingest.utils import create_invalid_return, create_state_return, \
                             get_unique_id, get_job_id, receive
 from ingest.backend import tasks
+
+
+# pylint: disable=unused-argument
+def exit_handler(signum, frame):
+    """Catch term and exit cleanly."""
+    print 'Exiting cleanly from {0}'.format(signum)
+    sys.exit(signum)
+# pylint: enable=unused-argument
+
+
+signal.signal(signal.SIGTERM, exit_handler)
 
 
 def start_ingest(job_id, filepath):

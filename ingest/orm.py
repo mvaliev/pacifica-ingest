@@ -24,16 +24,9 @@ class IngestState(BaseModel):
     """Map a python record to a mysql table."""
 
     job_id = peewee.BigIntegerField(primary_key=True, db_column='id')
-    state = peewee.CharField(db_column='state')
-    task = peewee.CharField(db_column='task')
-    task_percent = peewee.DecimalField(db_column='task_percent')
-
-    @classmethod
-    def atomic(cls):
-        """Do the DB atomic bits."""
-        # pylint: disable=no-member
-        return cls._meta.database.atomic()
-        # pylint: enable=no-member
+    state = peewee.CharField()
+    task = peewee.CharField()
+    task_percent = peewee.DecimalField()
 
     @classmethod
     def database_connect(cls):
@@ -41,10 +34,11 @@ class IngestState(BaseModel):
         Make sure database is connected.
 
         Trying to connect a second
-        time doesnt cause any problems.
+        time *does* cause problems.
         """
         # pylint: disable=no-member
-        cls._meta.database.connect()
+        if cls._meta.database.is_closed():
+            cls._meta.database.connect()
         # pylint: enable=no-member
 
     @classmethod
@@ -53,13 +47,13 @@ class IngestState(BaseModel):
         Close the database connection.
 
         Closing already closed database
-        throws an error so catch it and continue on.
+        is not a problem, so continue on.
         """
         try:
             # pylint: disable=no-member
             cls._meta.database.close()
             # pylint: enable=no-member
-        except peewee.ProgrammingError:
+        except peewee.ProgrammingError:  # pragma: no cover
             # error for closing an already closed database so continue on
             return
 

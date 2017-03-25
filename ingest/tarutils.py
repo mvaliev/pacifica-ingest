@@ -63,19 +63,10 @@ class FileIngester(object):
             )
             self.fileobj.close()
             body = req.text
-            try:
-                ret_dict = json.loads(body)
-                msg = ret_dict['message']
-                print(msg)
-                size = int(ret_dict['total_bytes'])
-                if size != info.size:
-                    return False
-            # pylint: disable=broad-except
-            except Exception as ex:
-                print(ex)
+            ret_dict = json.loads(body)
+            size = int(ret_dict['total_bytes'])
+            if size != info.size:  # pragma: no cover
                 return False
-            # pylint: enable=broad-except
-
             success = self.validate_hash()
             print('validated = ' + str(success))
             if not success:
@@ -85,6 +76,7 @@ class FileIngester(object):
         # pylint: disable=broad-except
         except Exception as ex:
             print(ex)
+            return False
         # pylint: enable=broad-except
 
 
@@ -176,18 +168,13 @@ class MetaParser(object):
             headers = {'content-type': 'application/json'}
 
             req = requests.put(archive_url, headers=headers, data=self.meta_str)
-            try:
-                if req.json()['status'] == 'success':
-                    return True
-            # pylint: disable=broad-except
-            except Exception:
-                print(req.content)
-                return False
-            # pylint: enable=broad-except
+            if req.json()['status'] == 'success':
+                return True
         # pylint: disable=broad-except
         except Exception:
             return False
         # pylint: enable=broad-except
+        return False
 
 
 def get_clipped(fname):
@@ -225,7 +212,8 @@ class TarIngester(object):
             info = self.tar.getmember(path)
             print(info.name)
             ingest = FileIngester(file_hash, archive_url, file_id)
-            ingest.upload_file_in_file(info, self.tar)
+            if not ingest.upload_file_in_file(info, self.tar):
+                return False
         return True
 # pylint: enable=too-few-public-methods
 
@@ -239,7 +227,8 @@ def open_tar(fpath):
     # open tar file
     try:
         tar = tarfile.open(fpath, 'r:')
-    except tarfile.TarError:
+    # not sure what exceptions would show up here and not be covered by is_tarfile
+    except tarfile.TarError:  # pragma: no cover
         print('Error opening: ' + fpath)
         return None
 

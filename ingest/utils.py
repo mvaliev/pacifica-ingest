@@ -72,68 +72,23 @@ def get_unique_id(id_range, mode):
     return unique_id
 
 
-# def upload_file(filepath, uid):
-#    """Return a unique job id from the id server."""
-#    try:
-#        archivei_server = os.getenv('ARCHIVEINTERFACE_SERVER', '127.0.0.1')
-#        archivei_port = os.getenv('ARCHIVEINTERFACE_PORT', '8080')
-#        archivei_url = 'http://{0}:{1}/'.format(archivei_server, archivei_port)
-#        size = os.path.getsize(filepath)
-#        file_size = str(size)
-#        body = ''
-#        with open(filepath, 'rb') as filedesc:
-#            req = requests.put(
-#                archivei_url + str(uid),
-#                data=filedesc,
-#                headers=(
-#                    ('Last-Modified', 'Sun, 06 Nov 1994 08:49:37 GMT'),
-#                    ('Content-Type', 'application/octet-stream'),
-#                    ('Content-Length', file_size)
-#                )
-#            )
-#            body = req.text
-#        print(body)
-#        return body
-#    except Exception as ex:
-#        print(ex)
-
-
-def rename_bundle(environ, job_id):
-    """Receive the tar file and save it locally."""
-    try:
-        if environ['REQUEST_METHOD'] == 'POST':
-            # ctype, pdict = cgi.parse_header(environ['CONTENT_TYPE'])
-            path = environ['HTTP_X_FILE']
-            root = os.path.dirname(path)
-            name = str(job_id) + '.tar'
-            name = os.path.join(root, name)
-            os.rename(path, name)
-            return name
-    except Exception as ex:
-        print(ex.message)
-
-
 def receive(environ, job_id):
     """Receive the tar file and save it locally."""
-    try:
-        if environ['REQUEST_METHOD'] == 'POST':
-            root = os.getenv('VOLUME_PATH', '/tmp')
-            name = str(job_id) + '.tar'
-            name = os.path.join(root, name)
-            file_out = open(name, 'wb')
-            block_size = 1024 * 1024
-            content_length = int(environ['CONTENT_LENGTH'])
-            print('content length ' + str(content_length))
-            while content_length > 0:
-                if content_length > block_size:
-                    buf = environ['wsgi.input'].read(block_size)
-                else:
-                    buf = environ['wsgi.input'].read(content_length)
+    if environ['REQUEST_METHOD'] == 'POST':
+        root = os.getenv('VOLUME_PATH', '/tmp')
+        name = str(job_id) + '.tar'
+        name = os.path.join(root, name)
+        file_out = open(name, 'wb')
+        block_size = 1024 * 1024
+        content_length = int(environ['CONTENT_LENGTH'])
+        while content_length > 0:
+            # this needs a file larger than 1M to be part of the tar...
+            if content_length > block_size:  # pragma: no cover
+                buf = environ['wsgi.input'].read(block_size)
+            else:
+                buf = environ['wsgi.input'].read(content_length)
 
-                file_out.write(buf)
-                content_length -= len(buf)
-            file_out.close()
-            return name
-    except Exception as ex:
-        print(ex.message)
-        return ''
+            file_out.write(buf)
+            content_length -= len(buf)
+        file_out.close()
+        return name

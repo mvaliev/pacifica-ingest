@@ -35,5 +35,8 @@ else
   pip install codeclimate-test-reporter coverage nose pytest
 fi
 pushd test_data
-tar -cf baby.tar metadata.txt data
+for x in good bad-proposal bad-mimetype bad-hashsum ; do
+  cp metadata-files/${x}-md.json metadata.txt
+  tar -cf ${x}.tar metadata.txt data
+done
 popd

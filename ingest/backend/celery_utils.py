@@ -5,7 +5,8 @@ from time import sleep
 from ingest.backend import tasks
 
 
-def ping_celery():
+# this is a developer testing utility used to test connectivity
+def ping_celery():  # pragme: no cover
     """Check to see if the celery process to bundle and upload is alive, alive."""
     ping_process = tasks.ping.delay()
     tries = 0

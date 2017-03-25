@@ -20,6 +20,9 @@ def ingest(job_id, filepath):
     """Ingest a tar bundle into the archive."""
     update_state(job_id, 'OK', 'Open tar', 0)
     tar = open_tar(filepath)
+    if tar is None:
+        update_state(job_id, 'FAILED', 'Bad tarfile', 0)
+        return
     update_state(job_id, 'OK', 'Open tar', 100)
 
     update_state(job_id, 'OK', 'load metadata', 0)
@@ -64,14 +67,8 @@ def validate_meta(meta_str):
 
         req = requests.post(archivei_url, headers=headers, data=meta_str)
 
-        try:
-            if req.json()['status'] == 'success':
-                return True
-        # pylint: disable=broad-except
-        except Exception:
-            print (req.content)
-            return False
-        # pylint: enable=broad-except
+        if req.json()['status'] == 'success':
+            return True
     # pylint: disable=broad-except
     except Exception:
         return False
@@ -79,7 +76,7 @@ def validate_meta(meta_str):
 
 
 @INGEST_APP.task(ignore_result=False)
-def ping():
+def ping():  # pragma: no cover
     """Check to see if the celery task process is started."""
     print('Pinged!')
     current_task.update_state(state='PING', meta={'Status': 'Background process is alive'})
