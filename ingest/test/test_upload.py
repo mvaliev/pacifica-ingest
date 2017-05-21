@@ -34,6 +34,7 @@ def test_bad_upload():
             }
         )
         assert req.status_code == 200
+        sleep(2)
         job_state = check_upload_state(loads(req.text)['job_id'])
         try_assert_job_state(job_state, 'FAILED', 'Policy Validation', 0)
 

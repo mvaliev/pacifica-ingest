@@ -209,7 +209,7 @@ class TarIngester(object):
 
             path = self.meta.get_subdir(file_id)+'/'+name
 
-            info = self.tar.getmember(path)
+            info = self.tar.getmember(path.encode('utf-8'))
             print(info.name)
             ingest = FileIngester(file_hash, archive_url, file_id)
             if not ingest.upload_file_in_file(info, self.tar):
