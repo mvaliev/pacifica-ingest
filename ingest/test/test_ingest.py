@@ -25,12 +25,14 @@ class IndexServerUnitTests(unittest.TestCase):
 
         meta = MetaParser()
         meta.load_meta(tar, 1)
+        self.assertTrue(meta)
 
     def test_tasks(self):
         """Test the ingest task."""
         job_id = get_unique_id(1, 'upload_job')
 
         ingest(job_id, 'test_data/good.tar')
+        self.assertTrue(job_id)
 
     def test_post_metadata(self):
         """Test sucking metadata from uploader and configuring it in a dictionary suitable to blob to meta ingest."""
@@ -38,18 +40,18 @@ class IndexServerUnitTests(unittest.TestCase):
         meta = MetaParser()
         meta.load_meta(tar, 1)
         success = meta.post_metadata()
-        assert(success)
+        self.assertTrue(success)
         tar = open_tar('test_data/bad-mimetype.tar')
         meta = MetaParser()
         meta.load_meta(tar, 2)
         success = meta.post_metadata()
-        assert(not success)
+        self.assertFalse(success)
         call(['docker-compose', 'stop', 'metadataserver'])
         tar = open_tar('test_data/good.tar')
         meta = MetaParser()
         meta.load_meta(tar, 1)
         success = meta.post_metadata()
-        assert(not success)
+        self.assertFalse(success)
         call(['docker-compose', 'start', 'metadataserver'])
 
     def test_ingest_tar(self):
@@ -58,13 +60,14 @@ class IndexServerUnitTests(unittest.TestCase):
         meta = MetaParser()
         meta.load_meta(tar, 1)
 
-        ingest = TarIngester(tar, meta)
+        tingest = TarIngester(tar, meta)
         # validate archive process
 
         # if not valid:
         #     rollback()
         # success = MetaUpload()
-        ingest.ingest()
+        tingest.ingest()
+        self.assertTrue(tingest)
 
     def test_update_state(self):
         """Test return and update of unique index."""

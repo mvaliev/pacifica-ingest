@@ -51,8 +51,8 @@ def test_create_return_params():
 
 def test_create_state_return():
     """Test the create_state_return method."""
-    Record = namedtuple('Record', ['job_id', 'state', 'task', 'task_percent'])
-    rec = Record(1, 'test state', 'test task', '12.345')
+    record = namedtuple('Record', ['job_id', 'state', 'task', 'task_percent'])
+    rec = record(1, 'test state', 'test task', '12.345')
     chk = create_state_return(rec)
     assert chk[0] == '200 OK'
     assert len(chk[1]) == 2

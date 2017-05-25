@@ -59,11 +59,14 @@ def test_good_upload():
     try_good_upload('good', 'OK', 'ingest metadata', 100)
 
 
+# this is a long name but descriptive.
+# pylint: disable=invalid-name
 def test_bad_archiveinterface_upload():
     """Test if the archive interface is down."""
     call(['docker-compose', 'stop', 'archiveinterface'])
     try_good_upload('good', 'FAILED', 'ingest files', 0)
     call(['docker-compose', 'start', 'archiveinterface'])
+# pylint: enable=invalid-name
 
 
 def test_bad_policy_upload():
