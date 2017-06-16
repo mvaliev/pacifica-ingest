@@ -1,7 +1,8 @@
 """Index server unit and integration tests."""
 import unittest
-from subprocess import call
 from tempfile import NamedTemporaryFile
+import mock
+import requests
 from ingest.orm import IngestState, BaseModel, update_state, read_state
 from ingest.utils import get_unique_id, get_job_id
 from ingest.tarutils import open_tar
@@ -46,13 +47,16 @@ class IndexServerUnitTests(unittest.TestCase):
         meta.load_meta(tar, 2)
         success = meta.post_metadata()
         self.assertFalse(success)
-        call(['docker-compose', 'stop', 'metadataserver'])
+
+    @mock.patch.object(requests, 'put')
+    def test_down_metadata(self, mock_requests_put):
+        """Test a failed upload of the metadata."""
         tar = open_tar('test_data/good.tar')
         meta = MetaParser()
+        mock_requests_put.side_effect = requests.HTTPError(mock.Mock(), 'Error')
         meta.load_meta(tar, 1)
         success = meta.post_metadata()
         self.assertFalse(success)
-        call(['docker-compose', 'start', 'metadataserver'])
 
     def test_ingest_tar(self):
         """Test moving individual files to the archive files are validated inline with the upload."""

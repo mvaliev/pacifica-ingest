@@ -1,10 +1,19 @@
 #!/bin/bash -xe
-
-sudo service postgresql stop
-sudo service mysql stop
 if [ -z "$RUN_LINTS" ]; then
-  docker-compose up -d
-  docker-compose stop ingestbackend ingestfrontend
+  pip install -r requirements-dev.txt
+  psql -c 'create database pacifica_metadata;' -U postgres
+  mysql -e 'CREATE DATABASE pacifica_uniqueid;'
+  mysql -e 'CREATE DATABASE pacifica_ingest;'
+  export POSTGRES_ENV_POSTGRES_USER=postgres
+  export POSTGRES_ENV_POSTGRES_PASSWORD=
+  export MYSQL_ENV_MYSQL_USER=travis
+  export MYSQL_ENV_MYSQL_PASSWORD=
+  archiveinterfaceserver.py --config travis/config.cfg &
+  echo $! > archiveinterface.pid
+  UniqueIDServer.py &
+  pushd travis/metadata
+  MetadataServer.py &
+  popd
   MAX_TRIES=60
   HTTP_CODE=$(curl -sL -w "%{http_code}\\n" localhost:8121/keys -o /dev/null || true)
   while [[ $HTTP_CODE != 200 && $MAX_TRIES > 0 ]] ; do
@@ -12,7 +21,16 @@ if [ -z "$RUN_LINTS" ]; then
     HTTP_CODE=$(curl -sL -w "%{http_code}\\n" localhost:8121/keys -o /dev/null || true)
     MAX_TRIES=$(( MAX_TRIES - 1 ))
   done
-  docker run -it --rm --net=pacificaingest_default  -e METADATA_URL=http://metadataserver:8121 -e PYTHONPATH=/usr/src/app --link /metadataserver:/metadataserver/metadataserver pacifica/metadata python test_files/loadit.py
+  TOP_DIR=$PWD
+  MD_TEMP=$(mktemp -d)
+  git clone https://github.com/pacifica/pacifica-metadata.git ${MD_TEMP}
+  pushd ${MD_TEMP}
+  python test_files/loadit.py
+  popd
+  pushd travis/policy
+  PolicyServer.py &
+  echo $! > PolicyServer.pid
+  popd
 fi
 case "$TRAVIS_PYTHON_VERSION" in
   pypy) export PYPY_VERSION="pypy-2.6.1" ;;
