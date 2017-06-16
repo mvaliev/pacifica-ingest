@@ -50,7 +50,7 @@ fi
 if [ "$RUN_LINTS" = "true" ]; then
   pip install pre-commit
 else
-  pip install codeclimate-test-reporter coverage nose pytest
+  pip install nose pytest
 fi
 pushd test_data
 for x in good bad-proposal bad-mimetype bad-hashsum ; do

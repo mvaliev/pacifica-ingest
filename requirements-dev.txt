@@ -1,6 +1,6 @@
 celery
 codeclimate-test-reporter
-coverage
+coverage>=4.0,<4.4
 MySQL-python
 -e git://github.com/pacifica/pacifica-archiveinterface.git#egg=PacificaArchiveInterface
 -e git://github.com/pacifica/pacifica-metadata.git#egg=PacificaMetadata

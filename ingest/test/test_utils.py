@@ -1,7 +1,22 @@
 #!/usr/bin/python
 """Test ingest."""
 from collections import namedtuple
+import mock
+import peewee
+from ingest.orm import create_tables, IngestState
 from ingest.utils import get_job_id, valid_request, create_invalid_return, create_return_params, create_state_return
+
+
+@mock.patch.object(IngestState, 'table_exists')
+def test_bad_db_connection(mock_is_table_exists):
+    """Test a failed db connection."""
+    mock_is_table_exists.side_effect = peewee.OperationalError(mock.Mock(), 'Error')
+    hit_exception = False
+    try:
+        create_tables(18)
+    except peewee.OperationalError:
+        hit_exception = True
+    assert hit_exception
 
 
 def test_bad_form_get_job_id():

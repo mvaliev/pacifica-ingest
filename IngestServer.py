@@ -5,7 +5,7 @@ import sys
 import signal
 import logging
 from wsgiref.simple_server import make_server
-from ingest.orm import IngestState, read_state, update_state
+from ingest.orm import IngestState, read_state, update_state, create_tables
 from ingest.utils import create_invalid_return, create_state_return, \
                             get_unique_id, get_job_id, receive
 from ingest.backend import tasks
@@ -29,6 +29,7 @@ def start_ingest(job_id, filepath):
 
 def application(environ, start_response):
     """The wsgi callback."""
+    create_tables()
     info = environ['PATH_INFO']
     if info and info == '/get_state':
         job_id = get_job_id(environ)
@@ -100,9 +101,7 @@ def main():
     main_logger.info('MYSQL_ENV_MYSQL_PASSWORD = %(msg)s', msg)
     msg['msg'] = os.getenv('MYSQL_ENV_MYSQL_PASSWORD', 'ingest')
 
-    if not IngestState.table_exists():
-        IngestState.create_table()
-
+    create_tables()
     httpd = make_server('0.0.0.0', 8066, application)
     httpd.serve_forever()
 
