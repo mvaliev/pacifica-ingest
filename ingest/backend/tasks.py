@@ -54,6 +54,8 @@ def ingest(job_id, filepath):
         update_state(job_id, 'FAILED', 'ingest metadata', 0)
         return
     update_state(job_id, 'OK', 'ingest metadata', 100)
+    tar.close()
+    os.unlink(filepath)
 
 
 def validate_meta(meta_str):
