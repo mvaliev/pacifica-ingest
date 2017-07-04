@@ -179,9 +179,11 @@ class MetaParser(object):
 
 def get_clipped(fname):
     """Return a file path with the data separator removed."""
-    if fname.startswith('data/'):
-        fname = fname[5:]
-    return fname
+    parts = fname.split('/')  # this is posix tar standard
+    if parts[0] == 'data':
+        del parts[0]
+    parts = [x for x in parts if x]
+    return '/'.join(parts)
 
 
 # pylint: disable=too-few-public-methods
