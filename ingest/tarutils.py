@@ -20,9 +20,12 @@ class FileIngester(object):
     hashval = None
     server = ''
 
-    def __init__(self, hashcode, server, file_id):
+    def __init__(self, hashtype, hashcode, server, file_id):
         """Constructor for FileIngester class."""
-        self.hashval = hashlib.sha1()
+        if hashtype in hashlib.algorithms_available:
+            self.hashval = getattr(hashlib, hashtype)()
+        else:
+            raise ValueError('Invalid Hashtype {}'.format(hashtype))
         self.recorded_hash = hashcode
         self.server = server
         self.file_id = file_id
@@ -132,7 +135,8 @@ class MetaParser(object):
         file_element = self.files[file_id]
         # remove filetype if there is one
         file_hash = file_element['hashsum'].replace('sha1:', '')
-        return file_hash
+        file_hash_type = file_element['hashtype']
+        return file_hash_type, file_hash
 
     def get_fname(self, file_id):
         """Get the file name from the file ID."""
@@ -206,14 +210,14 @@ class TarIngester(object):
 
         for file_id in self.meta.files.keys():
             # file_id = element['id']
-            file_hash = self.meta.get_hash(file_id)
+            file_hash_type, file_hash = self.meta.get_hash(file_id)
             name = self.meta.get_fname(file_id)
 
             path = self.meta.get_subdir(file_id)+'/'+name
 
             info = self.tar.getmember(path.encode('utf-8'))
             print(info.name)
-            ingest = FileIngester(file_hash, archive_url, file_id)
+            ingest = FileIngester(file_hash_type, file_hash, archive_url, file_id)
             if not ingest.upload_file_in_file(info, self.tar):
                 return False
         return True

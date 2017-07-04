@@ -8,6 +8,7 @@ from ingest.utils import get_unique_id, get_job_id
 from ingest.tarutils import open_tar
 from ingest.tarutils import MetaParser
 from ingest.tarutils import TarIngester
+from ingest.tarutils import FileIngester
 from ingest.backend.tasks import ingest
 from playhouse.test_utils import test_database
 from peewee import SqliteDatabase
@@ -19,6 +20,16 @@ TEST_DB = SqliteDatabase(TEMP_DB.name)
 
 class IndexServerUnitTests(unittest.TestCase):
     """Index server unit and integration tests."""
+
+    def test_file_ingester(self):
+        """Test the FileIngester class."""
+        FileIngester('sha1', 'fakehashsum', '127.0.0.1', '1')
+        hit_exception = False
+        try:
+            FileIngester('badfunc', 'fakehashsum', '127.0.0.1', '1')
+        except ValueError:
+            hit_exception = True
+        self.assertTrue(hit_exception)
 
     def test_load_meta(self):
         """Test sucking metadata from uploader and configuring it in a dictionary suitable to blob to meta ingest."""
