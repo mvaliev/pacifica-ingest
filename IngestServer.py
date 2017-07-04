@@ -5,6 +5,7 @@ import sys
 import signal
 import logging
 from wsgiref.simple_server import make_server
+import peewee
 from ingest.orm import IngestState, read_state, update_state, create_tables
 from ingest.utils import create_invalid_return, create_state_return, \
                             get_unique_id, get_job_id, receive
@@ -33,7 +34,12 @@ def application(environ, start_response):
     info = environ['PATH_INFO']
     if info and info == '/get_state':
         job_id = get_job_id(environ)
-        record = read_state(job_id)
+        try:
+            record = read_state(job_id)
+        except peewee.DoesNotExist:
+            status, response_headers, response_body = create_invalid_return()
+            start_response(status, response_headers)
+            return [response_body]
         if record:
             status, response_headers, response_body = create_state_return(record)
             start_response(status, response_headers)

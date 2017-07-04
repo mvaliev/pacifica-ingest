@@ -6,9 +6,6 @@ from urlparse import parse_qs
 import json
 import requests
 
-# pylint: disable=bare-except
-# pylint: disable=broad-except
-
 
 def get_job_id(environ):
     """Parse the parameters for a request from the environ dictionary."""
@@ -18,8 +15,10 @@ def get_job_id(environ):
             job_id = int(args.get('job_id', [''])[0])
             return job_id
         return (None, None)
-    except:
+    # pylint: disable=broad-except
+    except Exception:
         return (None, None)
+    # pylint: enable=broad-except
 
 
 def valid_request(environ):
