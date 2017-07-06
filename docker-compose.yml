@@ -18,6 +18,7 @@ services:
      - /tmp/ingest:/srv
     environment:
       VOLUME_PATH: /srv
+      MYSQL_PORT_3306_TCP_ADDR: ingestmysql
 
   ingestbackend:
     container_name: ingestbackend
@@ -35,6 +36,7 @@ services:
      - /tmp/ingest:/srv
     environment:
       VOLUME_PATH: /srv
+      MYSQL_PORT_3306_TCP_ADDR: ingestmysql
 
   ingestmysql:
     image: mysql

@@ -11,6 +11,12 @@ import requests
 from ingest.utils import get_unique_id
 
 
+class HashValidationException(Exception):
+    """Class to capture hashsum validation failures."""
+
+    pass
+
+
 class FileIngester(object):
     """Class to ingest a single file from a tar file into the file archives."""
 
@@ -46,41 +52,34 @@ class FileIngester(object):
 
     def upload_file_in_file(self, info, tar):
         """Upload a file from inside a tar file."""
-        try:
-            self.fileobj = tar.extractfile(info)
-            size = self.fileobj.size
-            size_str = str(size)
-            mod_time = time.ctime(info.mtime)
-            self.fileobj.seek(0)
-            url = self.server + str(self.file_id)
+        self.fileobj = tar.extractfile(info)
+        size = self.fileobj.size
+        size_str = str(size)
+        mod_time = time.ctime(info.mtime)
+        self.fileobj.seek(0)
+        url = self.server + str(self.file_id)
 
-            headers = {}
-            headers['Last-Modified'] = mod_time
-            headers['Content-Type'] = 'application/octet-stream'
-            headers['Content-Length'] = size_str
+        headers = {}
+        headers['Last-Modified'] = mod_time
+        headers['Content-Type'] = 'application/octet-stream'
+        headers['Content-Length'] = size_str
 
-            req = requests.put(
-                url,
-                data=self,
-                headers=headers
-            )
-            self.fileobj.close()
-            body = req.text
-            ret_dict = json.loads(body)
-            size = int(ret_dict['total_bytes'])
-            if size != info.size:  # pragma: no cover
-                return False
-            success = self.validate_hash()
-            print('validated = ' + str(success))
-            if not success:
-                # roll back upload
-                return False
-            return success
-        # pylint: disable=broad-except
-        except Exception as ex:
-            print(ex)
+        req = requests.put(
+            url,
+            data=self,
+            headers=headers
+        )
+        self.fileobj.close()
+        body = req.text
+        ret_dict = json.loads(body)
+        size = int(ret_dict['total_bytes'])
+        if size != info.size:  # pragma: no cover
             return False
-        # pylint: enable=broad-except
+        success = self.validate_hash()
+        print('validated = ' + str(success))
+        if not success:
+            # roll back upload
+            raise HashValidationException('File {} failed to validate.'.format(self.file_id))
 
 
 class MetaParser(object):
@@ -173,12 +172,12 @@ class MetaParser(object):
 
             req = requests.put(archive_url, headers=headers, data=self.meta_str)
             if req.json()['status'] == 'success':
-                return True
+                return True, ''
         # pylint: disable=broad-except
-        except Exception:
-            return False
+        except Exception as ex:
+            return False, ex
         # pylint: enable=broad-except
-        return False
+        return False, req.json()
 
 
 def get_clipped(fname):
@@ -218,9 +217,7 @@ class TarIngester(object):
             info = self.tar.getmember(path.encode('utf-8'))
             print(info.name)
             ingest = FileIngester(file_hash_type, file_hash, archive_url, file_id)
-            if not ingest.upload_file_in_file(info, self.tar):
-                return False
-        return True
+            ingest.upload_file_in_file(info, self.tar)
 # pylint: enable=too-few-public-methods
 
 

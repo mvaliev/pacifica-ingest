@@ -2,6 +2,7 @@
 """ORM for index server."""
 import os
 import time
+from datetime import datetime
 import peewee
 
 DATABASE_CONNECT_ATTEMPTS = 20
@@ -44,6 +45,9 @@ class IngestState(BaseModel):
     state = peewee.CharField()
     task = peewee.CharField()
     task_percent = peewee.DecimalField()
+    exception = peewee.TextField(default='')
+    created = peewee.DateTimeField(default=datetime.utcnow)
+    updated = peewee.DateTimeField(default=datetime.utcnow)
 
     @classmethod
     def database_connect(cls):
@@ -81,7 +85,7 @@ class IngestState(BaseModel):
 # pylint: enable=too-few-public-methods
 
 
-def update_state(job_id, state, task, task_percent):
+def update_state(job_id, state, task, task_percent, exception=''):
     """Update the state of an ingest job."""
     if job_id and job_id >= 0:
         IngestState.database_connect()
@@ -91,6 +95,8 @@ def update_state(job_id, state, task, task_percent):
         record.state = state
         record.task = task
         record.task_percent = task_percent
+        record.exception = exception
+        record.updated = datetime.utcnow()
         record.save()
         IngestState.database_close()
 

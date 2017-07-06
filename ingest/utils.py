@@ -50,8 +50,15 @@ def create_return_params(response_body):
 
 def create_state_return(record):
     """Create the dictionary containing the start and stop index packs the message components."""
-    state = {'job_id': record.job_id, 'state': record.state, 'task': record.task,
-             'task_percent': str(record.task_percent)}
+    state = {
+        'job_id': record.job_id,
+        'state': record.state,
+        'task': record.task,
+        'task_percent': str(record.task_percent),
+        'updated': str(record.updated),
+        'created': str(record.created),
+        'exception': str(record.exception)
+    }
     response_body = json.dumps(state)
     return create_return_params(response_body)
 

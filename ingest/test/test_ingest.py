@@ -51,13 +51,15 @@ class IndexServerUnitTests(unittest.TestCase):
         tar = open_tar('test_data/good.tar')
         meta = MetaParser()
         meta.load_meta(tar, 1)
-        success = meta.post_metadata()
+        success, exception = meta.post_metadata()
         self.assertTrue(success)
+        self.assertFalse(exception)
         tar = open_tar('test_data/bad-mimetype.tar')
         meta = MetaParser()
         meta.load_meta(tar, 2)
-        success = meta.post_metadata()
+        success, exception = meta.post_metadata()
         self.assertFalse(success)
+        self.assertTrue(exception)
 
     @mock.patch.object(requests, 'put')
     def test_down_metadata(self, mock_requests_put):
@@ -66,8 +68,9 @@ class IndexServerUnitTests(unittest.TestCase):
         meta = MetaParser()
         mock_requests_put.side_effect = requests.HTTPError(mock.Mock(), 'Error')
         meta.load_meta(tar, 1)
-        success = meta.post_metadata()
+        success, exception = meta.post_metadata()
         self.assertFalse(success)
+        self.assertTrue(exception)
 
     def test_ingest_tar(self):
         """Test moving individual files to the archive files are validated inline with the upload."""
