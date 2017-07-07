@@ -186,7 +186,7 @@ def get_clipped(fname):
     if parts[0] == 'data':
         del parts[0]
     parts = [x for x in parts if x]
-    return '/'.join(parts)
+    return '/'.join(parts)  # this is also posix tar standard
 
 
 # pylint: disable=too-few-public-methods
@@ -213,6 +213,7 @@ class TarIngester(object):
             name = self.meta.get_fname(file_id)
 
             path = self.meta.get_subdir(file_id)+'/'+name
+            path = '/'.join(['data', get_clipped(path)])  # this is for posix tar standard
 
             info = self.tar.getmember(path.encode('utf-8'))
             print(info.name)
