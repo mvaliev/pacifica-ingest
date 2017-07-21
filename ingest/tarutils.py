@@ -9,6 +9,7 @@ import os
 import requests
 
 from ingest.utils import get_unique_id
+requests.adapters.DEFAULT_RETRIES = 5
 
 
 class HashValidationException(Exception):
