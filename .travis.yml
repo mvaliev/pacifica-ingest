@@ -2,7 +2,7 @@ services:
  - postgresql
  - mysql
  - elasticsearch
- - rabbitmq
+ - redis-server
 
 addons:
   apt:

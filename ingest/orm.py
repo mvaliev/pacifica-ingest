@@ -17,8 +17,10 @@ DB = peewee.MySQLDatabase(os.getenv('MYSQL_ENV_MYSQL_DATABASE', 'pacifica_ingest
 def create_tables(attempts=0):
     """Attempt to connect to the database."""
     try:
+        IngestState.database_connect()
         if not IngestState.table_exists():
             IngestState.create_table()
+        IngestState.database_close()
     except peewee.OperationalError:
         if attempts < DATABASE_CONNECT_ATTEMPTS:
             time.sleep(DATABASE_WAIT)
@@ -58,8 +60,9 @@ class IngestState(BaseModel):
         time *does* cause problems.
         """
         # pylint: disable=no-member
-        if cls._meta.database.is_closed():
-            cls._meta.database.connect()
+        if not cls._meta.database.is_closed():
+            cls._meta.database.close()
+        cls._meta.database.connect()
         # pylint: enable=no-member
 
     @classmethod
@@ -70,13 +73,10 @@ class IngestState(BaseModel):
         Closing already closed database
         is not a problem, so continue on.
         """
-        try:
-            # pylint: disable=no-member
+        # pylint: disable=no-member
+        if not cls._meta.database.is_closed():
             cls._meta.database.close()
-            # pylint: enable=no-member
-        except peewee.ProgrammingError:  # pragma: no cover
-            # error for closing an already closed database so continue on
-            return
+        # pylint: enable=no-member
 
     class Meta(object):
         """Map to uniqueindex table."""
