@@ -1,7 +1,6 @@
 """Index server unit and integration tests."""
 import unittest
 from tempfile import NamedTemporaryFile
-import mock
 import requests
 from ingest.orm import IngestState, BaseModel, update_state, read_state
 from ingest.utils import get_unique_id, get_job_id
@@ -61,12 +60,15 @@ class IndexServerUnitTests(unittest.TestCase):
         self.assertFalse(success)
         self.assertTrue(exception)
 
-    @mock.patch.object(requests, 'put')
-    def test_down_metadata(self, mock_requests_put):
+    def test_down_metadata(self):
         """Test a failed upload of the metadata."""
         tar = open_tar('test_data/good.tar')
         meta = MetaParser()
-        mock_requests_put.side_effect = requests.HTTPError(mock.Mock(), 'Error')
+
+        def bad_put(*args, **kwargs):  # pylint: disable=unused-argument
+            """bad put to the metadata server."""
+            raise requests.HTTPError()
+        meta.session.put = bad_put
         meta.load_meta(tar, 1)
         success, exception = meta.post_metadata()
         self.assertFalse(success)

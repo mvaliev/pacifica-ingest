@@ -100,7 +100,10 @@ class MetaParser(object):
 
     def __init__(self):
         """Constructor."""
-        pass
+        self.session = requests.session()
+        retry_adapter = requests.adapters.HTTPAdapter(max_retries=5)
+        self.session.mount('https://', retry_adapter)
+        self.session.mount('http://', retry_adapter)
 
     def load_meta(self, tar, job_id):
         """Load the metadata from a tar file into searchable structures."""
@@ -173,7 +176,7 @@ class MetaParser(object):
 
             headers = {'content-type': 'application/json'}
 
-            req = requests.put(archive_url, headers=headers, data=self.meta_str)
+            req = self.session.put(archive_url, headers=headers, data=self.meta_str)
             if req.json()['status'] == 'success':
                 return True, ''
         # pylint: disable=broad-except

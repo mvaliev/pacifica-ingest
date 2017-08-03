@@ -106,7 +106,11 @@ def validate_meta(meta_str):
 
         headers = {'content-type': 'application/json'}
 
-        req = requests.post(archivei_url, headers=headers, data=meta_str)
+        session = requests.session()
+        retry_adapter = requests.adapters.HTTPAdapter(max_retries=5)
+        session.mount('http://', retry_adapter)
+        session.mount('https://', retry_adapter)
+        req = session.post(archivei_url, headers=headers, data=meta_str)
 
         req_json = req.json()
         if req_json['status'] == 'success':
