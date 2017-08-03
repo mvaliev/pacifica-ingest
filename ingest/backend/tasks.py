@@ -3,6 +3,7 @@
 from __future__ import absolute_import, print_function
 # from time import sleep
 import os
+import traceback
 import requests
 # from ingest.orm import IngestState, BaseModel, update_state, read_state
 # from ingest.utils import get_job_id
@@ -63,7 +64,8 @@ def ingest_files(job_id, ingest_obj):
     # pylint: disable=broad-except
     except Exception as ex:
         # rollback files
-        update_state(job_id, 'FAILED', 'ingest files', 0, str(ex))
+        stack_dump = traceback.format_exc()
+        update_state(job_id, 'FAILED', 'ingest files', 0, u'{}\n{}'.format(stack_dump, str(ex)))
         raise IngestException()
     update_state(job_id, 'OK', 'ingest files', 100)
 
