@@ -7,9 +7,7 @@ import hashlib
 import time
 import os
 import requests
-
 from ingest.utils import get_unique_id
-requests.adapters.DEFAULT_RETRIES = 5
 
 
 class HashValidationException(Exception):
@@ -36,6 +34,10 @@ class FileIngester(object):
         self.recorded_hash = hashcode
         self.server = server
         self.file_id = file_id
+        self.session = requests.session()
+        retry_adapter = requests.adapters.HTTPAdapter(max_retries=5)
+        self.session.mount('https://', retry_adapter)
+        self.session.mount('http://', retry_adapter)
 
     def read(self, size):
         """Read wrapper for requests that calculates the hashcode inline."""
@@ -65,7 +67,7 @@ class FileIngester(object):
         headers['Content-Type'] = 'application/octet-stream'
         headers['Content-Length'] = size_str
 
-        req = requests.put(
+        req = self.session.put(
             url,
             data=self,
             headers=headers
