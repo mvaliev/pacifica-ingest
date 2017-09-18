@@ -1,4 +1,6 @@
-version: '2'
+version: '3.3'
+volumes:
+  ingestdata:
 services:
   ingestfrontend:
     container_name: ingestfrontend
@@ -15,10 +17,11 @@ services:
     ports:
      - 8066:8066
     volumes:
-     - /tmp/ingest:/srv
+     - ingestdata:/srv
     environment:
       VOLUME_PATH: /srv
       MYSQL_PORT_3306_TCP_ADDR: ingestmysql
+      BROKER_SERVER: ingestrabbit
 
   ingestbackend:
     container_name: ingestbackend
@@ -33,10 +36,11 @@ services:
      - ingestrabbit:ingestrabbit
      - ingestmysql:ingestmysql
     volumes:
-     - /tmp/ingest:/srv
+     - ingestdata:/srv
     environment:
       VOLUME_PATH: /srv
       MYSQL_PORT_3306_TCP_ADDR: ingestmysql
+      BROKER_SERVER: ingestrabbit
 
   ingestmysql:
     image: mysql
@@ -95,8 +99,19 @@ services:
       METADATA_PORT: tcp://metadata:8121
 
   elasticdb:
-    image: elasticsearch:2.4
+    build:
+      context: .
+      dockerfile: Dockerfile.elastic
     container_name: elasticdb
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      mem_limit: 1g
 
   metadatadb:
     image: postgres
@@ -110,14 +125,13 @@ services:
     image: pacifica/metadata
     container_name: metadataserver
     links:
-      - metadatadb:postgres
-      - elasticdb:elasticdb
+      - metadatadb
+      - elasticdb
     ports:
       - 8121:8121
     environment:
       ELASTICDB_PORT: tcp://elasticdb:9200
       POSTGRES_ENV_POSTGRES_DB: pacifica_metadata
       POSTGRES_ENV_POSTGRES_USER: metadata
-      POSTGRES_PORT_5432_TCP_ADDR: postgres
-      POSTGRES_PORT_5432_TCP_PORT: 5432
+      POSTGRES_PORT_5432_TCP_ADDR: metadatadb
       POSTGRES_ENV_POSTGRES_PASSWORD: password
