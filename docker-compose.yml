@@ -8,12 +8,12 @@ services:
       context: .
       dockerfile: Dockerfile.wsgi
     links:
-     - uniqueid:uniqueid
-     - metadataserver:metadataserver
-     - archiveinterface:archiveinterface
-     - policyserver:policyserver
-     - ingestrabbit:ingestrabbit
-     - ingestmysql:ingestmysql
+     - uniqueid
+     - metadataserver
+     - archiveinterface
+     - policyserver
+     - ingestrabbit
+     - ingestmysql
     ports:
      - 8066:8066
     volumes:
@@ -22,6 +22,10 @@ services:
       VOLUME_PATH: /srv
       MYSQL_PORT_3306_TCP_ADDR: ingestmysql
       BROKER_SERVER: ingestrabbit
+      UNIQUEID_SERVER: uniqueid
+      POLICY_SERVER: policyserver
+      METADATA_SERVER: metadataserver
+      ARCHIVEINTERFACE_SERVER: archiveinterface
 
   ingestbackend:
     container_name: ingestbackend
@@ -29,18 +33,22 @@ services:
       context: .
       dockerfile: Dockerfile.celery
     links:
-     - uniqueid:uniqueid
-     - metadataserver:metadataserver
-     - archiveinterface:archiveinterface
-     - policyserver:policyserver
-     - ingestrabbit:ingestrabbit
-     - ingestmysql:ingestmysql
+     - uniqueid
+     - metadataserver
+     - archiveinterface
+     - policyserver
+     - ingestrabbit
+     - ingestmysql
     volumes:
      - ingestdata:/srv
     environment:
       VOLUME_PATH: /srv
       MYSQL_PORT_3306_TCP_ADDR: ingestmysql
       BROKER_SERVER: ingestrabbit
+      UNIQUEID_SERVER: uniqueid
+      POLICY_SERVER: policyserver
+      METADATA_SERVER: metadataserver
+      ARCHIVEINTERFACE_SERVER: archiveinterface
 
   ingestmysql:
     image: mysql
