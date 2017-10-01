@@ -3,7 +3,7 @@ import unittest
 from tempfile import NamedTemporaryFile
 import requests
 from ingest.orm import IngestState, BaseModel, update_state, read_state
-from ingest.utils import get_unique_id, get_job_id
+from ingest.utils import get_unique_id
 from ingest.tarutils import open_tar
 from ingest.tarutils import MetaParser
 from ingest.tarutils import TarIngester
@@ -105,9 +105,3 @@ class IndexServerUnitTests(unittest.TestCase):
             self.assertEqual(record.state, 'DATA_ACCESS_ERROR')
             self.assertEqual(record.task, 'read_state')
             self.assertEqual(record.task_percent, 0)
-
-    def test_get_job_id(self):
-        """Parse the parameters for a request from the environ dictionary."""
-        environ = {'QUERY_STRING': 'job_id=100'}
-        job_id = get_job_id(environ)
-        self.assertEqual(job_id, 100)
