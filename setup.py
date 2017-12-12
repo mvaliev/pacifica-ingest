@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 """Setup and install the ingest."""
 from pip.req import parse_requirements
 from setuptools import setup
@@ -11,6 +12,9 @@ setup(name='PacificaIngest',
       description='Pacifica Ingest',
       author='David Brown',
       author_email='david.brown@pnnl.gov',
-      packages=['ingest'],
+      packages=['ingest', 'ingest.backend', 'ingest.test'],
       scripts=['IngestServer.py', 'DatabaseCreate.py'],
+      entry_point={
+          'console_scripts': ['IngestServer=ingest:main']
+      },
       install_requires=[str(ir.req) for ir in INSTALL_REQS])

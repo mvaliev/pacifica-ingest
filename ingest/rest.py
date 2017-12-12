@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """Ingest Server Main."""
 import os
 import shutil
@@ -24,7 +25,8 @@ class RestIngestState(object):
         try:
             record = read_state(job_id)
         except peewee.DoesNotExist:
-            raise cherrypy.HTTPError('404 Not Found', 'job ID {} does not exist.'.format(job_id))
+            raise cherrypy.HTTPError(
+                '404 Not Found', 'job ID {} does not exist.'.format(job_id))
         return create_state_response(record)
     # pylint: enable=invalid-name
 

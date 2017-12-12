@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 """Test module for the ingest python code."""
 from time import sleep
 from json import loads
@@ -8,7 +9,8 @@ import requests
 def check_upload_state(job_id):
     """Get the upload state and return results."""
     sleep(3)
-    req = requests.get('http://127.0.0.1:8066/get_state?job_id={}'.format(job_id))
+    req = requests.get(
+        'http://127.0.0.1:8066/get_state?job_id={}'.format(job_id))
     assert req.status_code == 200
     job_state = loads(req.text)
     return job_state

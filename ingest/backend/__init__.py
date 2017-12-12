@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 """Celery boilerplate."""
 
 from __future__ import absolute_import

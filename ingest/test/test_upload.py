@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 """Test ingest with good uploads of good and bad data."""
 from __future__ import print_function
 import requests
@@ -38,4 +39,4 @@ def test_bad_json_upload():
 
 def test_bad_tarfile_upload():
     """Test if the metadata is down."""
-    try_good_upload('bad-tarfile', 'FAILED', 'Bad tarfile', 0)
+    try_good_upload('bad-tarfile', 'FAILED', 'open tar', 0)

@@ -1,3 +1,5 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 """Index server unit and integration tests."""
 import unittest
 from tempfile import NamedTemporaryFile

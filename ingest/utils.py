@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 """Testable utilities for ingest."""
 from __future__ import print_function
 import os
@@ -24,7 +25,8 @@ def get_unique_id(id_range, mode):
     uniqueid_server = os.getenv('UNIQUEID_SERVER', '127.0.0.1')
     uniqueid_port = os.getenv('UNIQUEID_PORT', '8051')
 
-    url = 'http://{0}:{1}/getid?range={2}&mode={3}'.format(uniqueid_server, uniqueid_port, id_range, mode)
+    url = 'http://{0}:{1}/getid?range={2}&mode={3}'.format(
+        uniqueid_server, uniqueid_port, id_range, mode)
 
     req = requests.get(url)
     body = req.text

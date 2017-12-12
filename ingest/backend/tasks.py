@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 """Module that contains all the amqp tasks that support the ingest infrastructure."""
 from __future__ import absolute_import, print_function
 # from time import sleep
@@ -24,12 +25,13 @@ class IngestException(Exception):
 
 def ingest_check_tarfile(job_id, filepath):
     """Check the ingest tarfile and return state or set it properly."""
-    update_state(job_id, 'OK', 'Open tar', 0)
+    update_state(job_id, 'OK', 'open tar', 0)
     tar = open_tar(filepath)
     if tar is None:
-        update_state(job_id, 'FAILED', 'Bad tarfile', 0)
+        update_state(job_id, 'FAILED', 'open tar',
+                     0, 'Failed to open tarfile.')
         raise IngestException()
-    update_state(job_id, 'OK', 'Open tar', 100)
+    update_state(job_id, 'OK', 'open tar', 100)
     return tar
 
 
@@ -65,7 +67,8 @@ def ingest_files(job_id, ingest_obj):
     except Exception as ex:
         # rollback files
         stack_dump = traceback.format_exc()
-        update_state(job_id, 'FAILED', 'ingest files', 0, u'{}\n{}'.format(stack_dump, str(ex)))
+        update_state(job_id, 'FAILED', 'ingest files', 0,
+                     u'{}\n{}'.format(stack_dump, str(ex)))
         raise IngestException()
     update_state(job_id, 'OK', 'ingest files', 100)
 
@@ -102,7 +105,8 @@ def validate_meta(meta_str):
     try:
         archivei_server = os.getenv('POLICY_SERVER', '127.0.0.1')
         archivei_port = os.getenv('POLICY_PORT', '8181')
-        archivei_url = 'http://{0}:{1}/ingest'.format(archivei_server, archivei_port)
+        archivei_url = 'http://{0}:{1}/ingest'.format(
+            archivei_server, archivei_port)
 
         headers = {'content-type': 'application/json'}
 
@@ -126,5 +130,6 @@ def validate_meta(meta_str):
 def ping():  # pragma: no cover
     """Check to see if the celery task process is started."""
     print('Pinged!')
-    current_task.update_state(state='PING', meta={'Status': 'Background process is alive'})
+    current_task.update_state(
+        state='PING', meta={'Status': 'Background process is alive'})
     print('updated ping status')

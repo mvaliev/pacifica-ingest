@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 """Test ingest with a disabled policy server."""
 from __future__ import print_function
 from ingest.test import try_good_upload

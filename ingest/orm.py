@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 """ORM for index server."""
 import os
 import time
@@ -8,7 +9,8 @@ import peewee
 DATABASE_CONNECT_ATTEMPTS = 20
 DATABASE_WAIT = 5
 DB = peewee.MySQLDatabase(os.getenv('MYSQL_ENV_MYSQL_DATABASE', 'pacifica_ingest'),
-                          host=os.getenv('MYSQL_PORT_3306_TCP_ADDR', '127.0.0.1'),
+                          host=os.getenv(
+                              'MYSQL_PORT_3306_TCP_ADDR', '127.0.0.1'),
                           port=int(os.getenv('MYSQL_PORT_3306_TCP_PORT', 3306)),
                           user=os.getenv('MYSQL_ENV_MYSQL_USER', 'ingest'),
                           passwd=os.getenv('MYSQL_ENV_MYSQL_PASSWORD', 'ingest'))

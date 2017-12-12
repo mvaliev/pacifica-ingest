@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 """Utilities and classes for unbundling and archiving a tar file."""
 from __future__ import print_function
 import tarfile
@@ -82,7 +83,8 @@ class FileIngester(object):
         print('validated = ' + str(success))
         if not success:
             # roll back upload
-            raise HashValidationException('File {} failed to validate.'.format(self.file_id))
+            raise HashValidationException(
+                'File {} failed to validate.'.format(self.file_id))
 
 
 class MetaParser(object):
@@ -172,11 +174,13 @@ class MetaParser(object):
 
             archive_server = os.getenv('METADATA_SERVER', '127.0.0.1')
             archive_port = os.getenv('METADATA_PORT', '8121')
-            archive_url = 'http://{0}:{1}/ingest'.format(archive_server, archive_port)
+            archive_url = 'http://{0}:{1}/ingest'.format(
+                archive_server, archive_port)
 
             headers = {'content-type': 'application/json'}
 
-            req = self.session.put(archive_url, headers=headers, data=self.meta_str)
+            req = self.session.put(
+                archive_url, headers=headers, data=self.meta_str)
             if req.json()['status'] == 'success':
                 return True, ''
         # pylint: disable=broad-except
@@ -218,12 +222,14 @@ class TarIngester(object):
             file_hash_type, file_hash = self.meta.get_hash(file_id)
             name = self.meta.get_fname(file_id)
 
-            path = self.meta.get_subdir(file_id)+'/'+name
-            path = '/'.join(['data', get_clipped(path)])  # this is for posix tar standard
+            path = self.meta.get_subdir(file_id) + '/' + name
+            # this is for posix tar standard
+            path = '/'.join(['data', get_clipped(path)])
 
             info = self.tar.getmember(path.encode('utf-8'))
             print(info.name)
-            ingest = FileIngester(file_hash_type, file_hash, archive_url, file_id)
+            ingest = FileIngester(
+                file_hash_type, file_hash, archive_url, file_id)
             ingest.upload_file_in_file(info, self.tar)
 # pylint: enable=too-few-public-methods
 
