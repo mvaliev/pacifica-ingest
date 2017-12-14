@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """Ingest Server Main."""
 import cherrypy
-from ingest import error_page_default, main
+from ingest.__main__ import error_page_default, main
 from ingest.rest import Root
 from ingest.globals import CHERRYPY_CONFIG
 

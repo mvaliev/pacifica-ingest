@@ -20,8 +20,15 @@ echo $! > PolicyServer.pid
 popd
 export POLICY_PID=$(cat travis/policy/PolicyServer.pid)
 kill $ARCHIVE_INTERFACE_PID
+sleep 2
 coverage run --include='ingest*' -m -p pytest -v ingest/test/test_upload_badai.py
 kill $SERVER_PID $CELERY_PID $POLICY_PID
+wait
+# can run the server straight from module
+coverage run --include='ingest*' -p -m ingest &
+SERVER_PID=$!
+sleep 2
+kill $SERVER_PID
 wait
 sleep 3
 kill -9 $SERVER_PID $CELERY_PID || true

@@ -15,6 +15,6 @@ setup(name='PacificaIngest',
       packages=['ingest', 'ingest.backend', 'ingest.test'],
       scripts=['IngestServer.py', 'DatabaseCreate.py'],
       entry_point={
-          'console_scripts': ['IngestServer=ingest:main']
+          'console_scripts': ['IngestServer=ingest.__main__:main']
       },
       install_requires=[str(ir.req) for ir in INSTALL_REQS])
