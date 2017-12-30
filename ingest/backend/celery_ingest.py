@@ -3,12 +3,11 @@
 """Primary celery process."""
 from __future__ import absolute_import
 from celery import Celery
-from . import settings
 
 
 INGEST_APP = Celery('ingest_backend', include=['ingest.backend.tasks'])
 
-INGEST_APP.config_from_object(settings)
+INGEST_APP.config_from_object('ingest.backend.settings:CeleryConfig')
 
 # Optional configuration, see the application user guide.
 INGEST_APP.conf.update(

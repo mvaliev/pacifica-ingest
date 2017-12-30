@@ -9,7 +9,7 @@ export BROKER_USER=
 export BROKER_PASS=
 coverage run --include='ingest*' -p -m celery -A ingest.backend worker --loglevel=info -c 1 -P solo &
 CELERY_PID=$!
-coverage run --include='ingest*' -p IngestServer.py &
+coverage run --include='ingest*' -p IngestServer.py --stop-after-a-moment &
 SERVER_PID=$!
 coverage run --include='ingest*' -m -p pytest -v ingest/test/test_ingest.py ingest/test/test_upload.py ingest/test/test_utils.py
 kill $POLICY_PID
@@ -22,7 +22,7 @@ export POLICY_PID=$(cat travis/policy/PolicyServer.pid)
 kill $ARCHIVE_INTERFACE_PID
 sleep 2
 coverage run --include='ingest*' -m -p pytest -v ingest/test/test_upload_badai.py
-kill $SERVER_PID $CELERY_PID $POLICY_PID
+kill $CELERY_PID $POLICY_PID
 wait
 # can run the server straight from module
 coverage run --include='ingest*' -p -m ingest &

@@ -6,9 +6,9 @@ from json import loads
 import requests
 
 
-def check_upload_state(job_id):
+def check_upload_state(job_id, wait):
     """Get the upload state and return results."""
-    sleep(3)
+    sleep(wait)
     req = requests.get(
         'http://127.0.0.1:8066/get_state?job_id={}'.format(job_id))
     assert req.status_code == 200
@@ -23,7 +23,7 @@ def try_assert_job_state(job_state, state, task, percent):
     assert int(float(job_state['task_percent'])) == percent
 
 
-def try_good_upload(tarfile, state, task, percent):
+def try_good_upload(tarfile, state, task, percent, wait=3):
     """Test the upload and see if the state task and percent match."""
     with open('test_data/{}.tar'.format(tarfile), 'rb') as filefd:
         req = requests.post(
@@ -34,5 +34,5 @@ def try_good_upload(tarfile, state, task, percent):
             }
         )
         assert req.status_code == 200
-        job_state = check_upload_state(loads(req.text)['job_id'])
+        job_state = check_upload_state(loads(req.text)['job_id'], wait)
         try_assert_job_state(job_state, state, task, percent)

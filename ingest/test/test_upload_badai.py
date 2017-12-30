@@ -9,5 +9,5 @@ from ingest.test import try_good_upload
 # pylint: disable=invalid-name
 def test_bad_archiveinterface_upload():
     """Test if the archive interface is down."""
-    try_good_upload('good', 'FAILED', 'ingest files', 0)
+    try_good_upload('good', 'FAILED', 'ingest files', 0, 10)
 # pylint: enable=invalid-name

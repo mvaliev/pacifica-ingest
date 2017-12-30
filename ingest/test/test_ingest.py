@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """Index server unit and integration tests."""
+import os
 import unittest
-from tempfile import NamedTemporaryFile
+from tempfile import mkstemp
 import requests
 from ingest.orm import IngestState, BaseModel, update_state, read_state
 from ingest.utils import get_unique_id
@@ -13,10 +14,6 @@ from ingest.tarutils import FileIngester
 from ingest.backend.tasks import ingest
 from playhouse.test_utils import test_database
 from peewee import SqliteDatabase
-
-
-TEMP_DB = NamedTemporaryFile()
-TEST_DB = SqliteDatabase(TEMP_DB.name)
 
 
 class IndexServerUnitTests(unittest.TestCase):
@@ -93,7 +90,9 @@ class IndexServerUnitTests(unittest.TestCase):
 
     def test_update_state(self):
         """Test return and update of unique index."""
-        with test_database(TEST_DB, (BaseModel, IngestState)):
+        rwfd, fname = mkstemp()
+        os.close(rwfd)
+        with test_database(SqliteDatabase(fname), (BaseModel, IngestState)):
             test_object = IngestState.create(job_id=999, state='ERROR', task='unbundling',
                                              task_percent=42.3)
             self.assertEqual(test_object.job_id, 999)
@@ -107,3 +106,4 @@ class IndexServerUnitTests(unittest.TestCase):
             self.assertEqual(record.state, 'DATA_ACCESS_ERROR')
             self.assertEqual(record.task, 'read_state')
             self.assertEqual(record.task_percent, 0)
+        os.unlink(fname)

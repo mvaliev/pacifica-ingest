@@ -1,5 +1,6 @@
 # Pacifica Ingest
 [![Build Status](https://travis-ci.org/pacifica/pacifica-ingest.svg?branch=master)](https://travis-ci.org/pacifica/pacifica-ingest)
+[![Build status](https://ci.appveyor.com/api/projects/status/dhniln12ili29kgm?svg=true)](https://ci.appveyor.com/project/dmlb2000/pacifica-ingest)
 [![Code Climate](https://codeclimate.com/github/pacifica/pacifica-ingest/badges/gpa.svg)](https://codeclimate.com/github/pacifica/pacifica-ingest)
 [![Test Coverage](https://codeclimate.com/github/pacifica/pacifica-ingest/badges/coverage.svg)](https://codeclimate.com/github/pacifica/pacifica-ingest/coverage)
 [![Issue Count](https://codeclimate.com/github/pacifica/pacifica-ingest/badges/issue_count.svg)](https://codeclimate.com/github/pacifica/pacifica-ingest)
