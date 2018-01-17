@@ -116,5 +116,6 @@ test_script:
       echo "Asking Celery to Shutdown";
       & "$env:PYTHON\python.exe" -m celery -A ingest.backend control shutdown;
       $back_proc | Wait-Process;
+      & "$env:PYTHON\python.exe" -m coverage run --include=ingest* -p -m pytest -v ingest/test/test_entry_points.py;
       ls .coverage* | %{ & "$env:PYTHON\python.exe" -m coverage combine -a $_.name };
       & "$env:PYTHON\python.exe" -m coverage report -m --fail-under=100;

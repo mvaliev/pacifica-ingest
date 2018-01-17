@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """Ingest Server Main."""
+from sys import argv
 import cherrypy
 from ingest.__main__ import error_page_default, main
 from ingest.rest import Root
@@ -14,4 +15,4 @@ application = cherrypy.Application(Root(), '/', CHERRYPY_CONFIG)
 # pylint: enable=invalid-name
 
 if __name__ == '__main__':
-    main()
+    main(argv[1:])

@@ -1,13 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """Ingest module."""
+from sys import argv as sys_argv
 from time import sleep
 from threading import Thread
 from argparse import ArgumentParser, SUPPRESS
 from json import dumps
 import cherrypy
 from ingest.rest import Root
-from ingest.orm import create_tables
+from ingest.orm import create_tables, update_state
 from ingest.globals import CHERRYPY_CONFIG
 
 
@@ -40,7 +41,7 @@ def stop_later(doit=False):
     sleep_thread.start()
 
 
-def main():
+def main(argv=None):
     """Main method to start the httpd server."""
     parser = ArgumentParser(description='Run the cart server.')
     parser.add_argument('-c', '--config', metavar='CONFIG', type=str,
@@ -55,7 +56,7 @@ def main():
     parser.add_argument('--stop-after-a-moment', help=SUPPRESS,
                         default=False, dest='stop_later',
                         action='store_true')
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     create_tables()
     stop_later(args.stop_later)
     cherrypy.config.update({'error_page.default': error_page_default})
@@ -66,5 +67,24 @@ def main():
     cherrypy.quickstart(Root(), '/', args.config)
 
 
+def cmd(argv=None):
+    """Command line admin tool for managing ingest."""
+    parser = ArgumentParser(description='Admin command line tool.')
+    subparsers = parser.add_subparsers(help='sub-command help')
+    job_parser = subparsers.add_parser(
+        'job', help='job help', description='manage jobs')
+    for attr in ['job_id', 'state', 'task', 'task_percent', 'exception']:
+        job_parser.add_argument(
+            '--{}'.format(attr.replace('_', '-')),
+            dest=attr,
+            help='set the {}'.format(attr)
+        )
+    job_parser.set_defaults(func=update_state)
+    args = parser.parse_args(argv)
+    args_func = args.func
+    delattr(args, 'func')
+    args_func(**(vars(args)))
+
+
 if __name__ == '__main__':
-    main()
+    main(sys_argv[1:])

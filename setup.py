@@ -14,7 +14,10 @@ setup(name='PacificaIngest',
       author_email='david.brown@pnnl.gov',
       packages=['ingest', 'ingest.backend', 'ingest.test'],
       scripts=['IngestServer.py', 'DatabaseCreate.py'],
-      entry_point={
-          'console_scripts': ['IngestServer=ingest.__main__:main']
+      entry_points={
+          'console_scripts': [
+              'IngestCMD=ingest.__main__:cmd',
+              'IngestServer=ingest.__main__:main'
+          ]
       },
       install_requires=[str(ir.req) for ir in INSTALL_REQS])

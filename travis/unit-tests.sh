@@ -33,6 +33,7 @@ wait
 sleep 3
 kill -9 $SERVER_PID $CELERY_PID || true
 wait
+coverage run --include='ingest*' -m -p pytest -v ingest/test/test_entry_points.py
 coverage combine -a .coverage*
 coverage report --show-missing --fail-under=100
 if [[ $CODECLIMATE_REPO_TOKEN ]] ; then
