@@ -3,6 +3,7 @@
 """Ingest Server Main."""
 import os
 import shutil
+import json
 import peewee
 import cherrypy
 from ingest.orm import read_state, update_state
@@ -28,6 +29,30 @@ class RestIngestState(object):
             raise cherrypy.HTTPError(
                 '404 Not Found', 'job ID {} does not exist.'.format(job_id))
         return create_state_response(record)
+    # pylint: enable=invalid-name
+
+
+class RestMove(object):
+    """Ingest the data from the service."""
+
+    exposed = True
+
+    # Cherrypy requires these named methods.
+    # pylint: disable=invalid-name
+    @staticmethod
+    @cherrypy.tools.json_out()
+    @cherrypy.tools.json_in()
+    def POST():
+        """Post the uploaded data."""
+        job_id = get_unique_id(1, 'upload_job')
+        update_state(job_id, 'OK', 'UPLOADING', 0)
+        root = os.getenv('VOLUME_PATH', '/tmp')
+        name = str(job_id) + '.json'
+        name = os.path.join(root, name)
+        with open(name, 'wb') as ingest_fd:
+            ingest_fd.write(json.dumps(cherrypy.request.json))
+        tasks.move.delay(job_id, name)
+        return create_state_response(read_state(job_id))
     # pylint: enable=invalid-name
 
 
@@ -60,4 +85,5 @@ class Root(object):
     exposed = False
     get_state = RestIngestState()
     upload = RestUpload()
+    move = RestMove()
 # pylint: enable=too-few-public-methods

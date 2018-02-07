@@ -7,7 +7,7 @@ mock
 -e git://github.com/pacifica/pacifica-metadata.git#egg=PacificaMetadata
 -e git://github.com/pacifica/pacifica-policy.git#egg=PacificaPolicy
 -e git://github.com/pacifica/pacifica-uniqueid.git#egg=PacificaUniqueID
-peewee
+peewee<3.0
 pep257
 pre-commit
 pylint<1.8

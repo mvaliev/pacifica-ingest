@@ -103,6 +103,29 @@ Failures that exist with this endpoint are during the course of uploading the bu
 Sending data to this endpoint should consider long drawn out HTTP posts that maybe
 longer than clients are used to handling.
 
+## Move (Single HTTP Request)
+
+Post a [metadata document](test_data/move-md.json) to the endpoint.
+
+```
+POST /move
+... content of move-md.json ...
+```
+
+The response will be the job ID information as if you requested it directly.
+
+```json
+{
+  "job_id": 1234,
+  "state": "OK",
+  "task": "UPLOADING",
+  "task_percent": "0.0",
+  "updated": "2018-01-25 16:54:50",
+  "created": "2018-01-25 16:54:50",
+  "exception": ""
+}
+```
+
 ## Get State for Job
 
 Using the `job_id` field from the HTTP response from an ingest.

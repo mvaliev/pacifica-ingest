@@ -2,18 +2,15 @@
 # -*- coding: utf-8 -*-
 """Module that contains all the amqp tasks that support the ingest infrastructure."""
 from __future__ import absolute_import, print_function
-# from time import sleep
 import os
 import traceback
 import requests
-# from ingest.orm import IngestState, BaseModel, update_state, read_state
-# from ingest.utils import get_job_id
-# from ingest import tarutils
+from celery import current_task
 from ingest.tarutils import open_tar
 from ingest.tarutils import MetaParser
 from ingest.tarutils import TarIngester
+from ingest.tarutils import patch_files
 from ingest.orm import update_state
-from celery import current_task
 from .celery_ingest import INGEST_APP
 
 
@@ -33,6 +30,15 @@ def ingest_check_tarfile(job_id, filepath):
         raise IngestException()
     update_state(job_id, 'OK', 'open tar', 100)
     return tar
+
+
+def move_metadata_parser(job_id, metafile):
+    """Ingest the metadata and set the state appropriately."""
+    update_state(job_id, 'OK', 'load metadata', 0)
+    meta = MetaParser()
+    meta.read_meta(metafile, job_id)
+    update_state(job_id, 'OK', 'load metadata', 100)
+    return meta
 
 
 def ingest_metadata_parser(job_id, tar):
@@ -56,6 +62,21 @@ def ingest_policy_check(job_id, meta_str):
         update_state(job_id, 'FAILED', 'Policy Validation', 0, exception)
         raise IngestException()
     update_state(job_id, 'OK', 'Policy Validation', 100)
+
+
+def move_files(job_id, meta_obj):
+    """Move the files to the archive interface."""
+    update_state(job_id, 'OK', 'move files', 0)
+    try:
+        patch_files(meta_obj)
+    # pylint: disable=broad-except
+    except Exception as ex:
+        # rollback files
+        stack_dump = traceback.format_exc()
+        update_state(job_id, 'FAILED', 'move files', 0,
+                     u'{}\n{}'.format(stack_dump, str(ex)))
+        raise IngestException()
+    update_state(job_id, 'OK', 'move files', 100)
 
 
 def ingest_files(job_id, ingest_obj):
@@ -82,6 +103,19 @@ def ingest_metadata(job_id, meta):
         update_state(job_id, 'FAILED', 'ingest metadata', 0, str(exception))
         raise IngestException()
     update_state(job_id, 'OK', 'ingest metadata', 100)
+
+
+@INGEST_APP.task(ignore_result=False)
+def move(job_id, filepath):
+    """Move a MD bundle into the archive."""
+    try:
+        meta = move_metadata_parser(job_id, filepath)
+        ingest_policy_check(job_id, meta.meta_str)
+        move_files(job_id, meta)
+        ingest_metadata(job_id, meta)
+        os.unlink(filepath)
+    except IngestException:
+        return
 
 
 @INGEST_APP.task(ignore_result=False)

@@ -85,6 +85,7 @@ class FileIngester(object):
             # roll back upload
             raise HashValidationException(
                 'File {} failed to validate.'.format(self.file_id))
+        return True
 
 
 class MetaParser(object):
@@ -106,6 +107,33 @@ class MetaParser(object):
         retry_adapter = requests.adapters.HTTPAdapter(max_retries=5)
         self.session.mount('https://', retry_adapter)
         self.session.mount('http://', retry_adapter)
+
+    def file_obj_count(self, meta_list):
+        """Count the file objects in metadata and keep the count."""
+        self.file_count = 0
+        for meta in meta_list:
+            if meta['destinationTable'] == 'Files':
+                self.file_count += 1
+
+    def read_meta(self, metafile, job_id):
+        """Read the metadata from metafile and assume it's good."""
+        self.transaction_id = job_id
+        meta_list = json.loads(open(metafile).read())
+        self.file_obj_count(meta_list)
+        self.start_id = get_unique_id(self.file_count, 'file')
+        self.files = {}
+        # all we care about for now is the hash and the file path
+        file_id = self.start_id
+        for meta in meta_list:
+            if meta['destinationTable'] == 'Files':
+                meta['_id'] = file_id
+                self.files[str(file_id)] = meta
+                file_id += 1
+        trans = {}
+        trans['destinationTable'] = 'Transactions._id'
+        trans['value'] = self.transaction_id
+        meta_list.append(trans)
+        self.meta_str = json.dumps(meta_list, sort_keys=True, indent=4)
 
     def load_meta(self, tar, job_id):
         """Load the metadata from a tar file into searchable structures."""
@@ -218,7 +246,6 @@ class TarIngester(object):
         archive_url = 'http://{0}:{1}/'.format(archive_server, archive_port)
 
         for file_id in self.meta.files.keys():
-            # file_id = element['id']
             file_hash_type, file_hash = self.meta.get_hash(file_id)
             name = self.meta.get_fname(file_id)
 
@@ -249,6 +276,26 @@ def open_tar(fpath):
         return None
 
     return tar
+
+
+def patch_files(meta_obj):
+    """Patch the files in the archive interface."""
+    archive_server = os.getenv('ARCHIVEINTERFACE_SERVER', '127.0.0.1')
+    archive_port = os.getenv('ARCHIVEINTERFACE_PORT', '8080')
+    archive_url = 'http://{0}:{1}/'.format(archive_server, archive_port)
+    session = requests.session()
+    retry_adapter = requests.adapters.HTTPAdapter(max_retries=5)
+    session.mount('https://', retry_adapter)
+    session.mount('http://', retry_adapter)
+    for file_id in meta_obj.files.keys():
+        data = {'path': meta_obj.files[file_id]['source']}
+        req = session.patch(
+            '{}{}'.format(archive_url, file_id),
+            headers={'content-type': 'application/json'},
+            data=json.dumps(data)
+        )
+        if req.json().get('message') != 'File Moved Successfully':
+            raise Exception(json.dumps(req.json()))
 
 
 def file_count(tar):

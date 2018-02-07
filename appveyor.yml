@@ -96,10 +96,11 @@ test_script:
       echo "============= Starting Policy =============";
       $policy_proc = Start-Process $env:PYTHON\python.exe -ArgumentList "$env:PYTHON\scripts\PolicyServer.py" -WorkingDirectory "travis\policy" -PassThru -RedirectStandardError policy-error.log -RedirectStandardOutput policy-output.log;
       echo "============= Starting Cart Backend =============";
-      $back_proc = Start-Process $env:PYTHON\python.exe -ArgumentList "-m coverage run --include=ingest* -p -m celery -A ingest.backend worker -l info -P eventlet" -PassThru -RedirectStandardError celery-error.log -RedirectStandardOutput celery-output.log;
+      $back_proc = Start-Process $env:PYTHON\python.exe -ArgumentList "-m coverage run --include=ingest* -p -m celery -A ingest.backend worker -l info -c 1 -P solo" -PassThru -RedirectStandardError celery-error.log -RedirectStandardOutput celery-output.log;
       echo "============= Starting Cart Frontend =============";
       $front_proc = Start-Process $env:PYTHON\python.exe -ArgumentList "-m coverage run --include=ingest* -p IngestServer.py --stop-after-a-moment" -PassThru -RedirectStandardError server-error.log -RedirectStandardOutput server-output.log;
-      & "$env:PYTHON\python.exe" -m coverage run --include=ingest* -p -m pytest -v ingest/test/test_ingest.py ingest/test/test_upload.py ingest/test/test_utils.py;
+      echo foo > C:\tmp\foo.txt;
+      & "$env:PYTHON\python.exe" -m coverage run --include=ingest* -p -m pytest -v ingest/test/test_ingest.py ingest/test/test_upload.py ingest/test/test_utils.py ingest/test/test_move.py;
       error_and_dump $?;
       $policy_proc.Kill();
       $policy_proc | Wait-Process;
@@ -111,7 +112,7 @@ test_script:
       & "$env:PYTHON\python.exe" -m coverage run --include=ingest* -p -m pytest -v ingest/test/test_upload_badai.py;
       error_and_dump $?;
       $front_proc | Wait-Process;
-      & "$env:PYTHON\python.exe" -m coverage run --include=ingest* -m ingest --stop-after-a-moment;
+      & "$env:PYTHON\python.exe" -m coverage run --include=ingest* -p -m ingest --stop-after-a-moment;
       $policy_proc.Kill();
       echo "Asking Celery to Shutdown";
       & "$env:PYTHON\python.exe" -m celery -A ingest.backend control shutdown;

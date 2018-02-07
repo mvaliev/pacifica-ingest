@@ -34,7 +34,7 @@ def stop_later(doit=False):
 
         Hopefully this is long enough for the end-to-end tests to finish
         """
-        sleep(60)
+        sleep(90)
         cherrypy.engine.exit()
     sleep_thread = Thread(target=sleep_then_exit)
     sleep_thread.daemon = True

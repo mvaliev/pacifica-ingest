@@ -7,11 +7,12 @@ export BROKER_TRANSPORT=redis
 export BROKER_PORT=6379
 export BROKER_USER=
 export BROKER_PASS=
+echo foo > /tmp/foo.txt
 coverage run --include='ingest*' -p -m celery -A ingest.backend worker --loglevel=info -c 1 -P solo &
 CELERY_PID=$!
 coverage run --include='ingest*' -p IngestServer.py --stop-after-a-moment &
 SERVER_PID=$!
-coverage run --include='ingest*' -m -p pytest -v ingest/test/test_ingest.py ingest/test/test_upload.py ingest/test/test_utils.py
+coverage run --include='ingest*' -m -p pytest -v ingest/test/test_ingest.py ingest/test/test_upload.py ingest/test/test_utils.py ingest/test/test_move.py
 kill $POLICY_PID
 coverage run --include='ingest*' -m -p pytest -v ingest/test/test_upload_badpolicy.py
 pushd travis/policy

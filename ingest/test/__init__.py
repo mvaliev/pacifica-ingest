@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """Test module for the ingest python code."""
+from os.path import join
 from time import sleep
 from json import loads
 import requests
@@ -23,9 +24,23 @@ def try_assert_job_state(job_state, state, task, percent):
     assert int(float(job_state['task_percent'])) == percent
 
 
+def try_good_move(mdfile, state, task, percent, wait=3):
+    """Test the move and see if the state task and percent match."""
+    with open(join('test_data', '{}.json'.format(mdfile)), 'r') as filefd:
+        req = requests.post(
+            'http://127.0.0.1:8066/move',
+            data=filefd.read(),
+            headers={'content-type': 'application/json'}
+        )
+        assert req.status_code == 200
+        job_id = req.json()['job_id']
+        job_state = check_upload_state(job_id, wait)
+        try_assert_job_state(job_state, state, task, percent)
+
+
 def try_good_upload(tarfile, state, task, percent, wait=3):
     """Test the upload and see if the state task and percent match."""
-    with open('test_data/{}.tar'.format(tarfile), 'rb') as filefd:
+    with open(join('test_data', '{}.tar'.format(tarfile)), 'rb') as filefd:
         req = requests.post(
             'http://127.0.0.1:8066/upload',
             data=filefd,
