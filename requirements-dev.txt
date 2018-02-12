@@ -16,3 +16,4 @@ pytest
 radon
 redis
 requests
+setuptools

@@ -3,3 +3,4 @@ cherrypy
 peewee<3.0
 pymysql
 requests
+setuptools
