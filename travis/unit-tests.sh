@@ -1,6 +1,6 @@
 #!/bin/bash
 export POLICY_PID=$(cat travis/policy/PolicyServer.pid)
-export ARCHIVE_INTERFACE_PID=$(cat archiveinterface.pid)
+export ARCHIVE_INTERFACE_PID=$(cat travis/archivei/archiveinterface.pid)
 export MYSQL_ENV_MYSQL_USER=travis
 export MYSQL_ENV_MYSQL_PASSWORD=
 export BROKER_TRANSPORT=redis
@@ -26,12 +26,7 @@ coverage run --include='ingest*' -m -p pytest -v ingest/test/test_upload_badai.p
 kill $CELERY_PID $POLICY_PID
 wait
 # can run the server straight from module
-coverage run --include='ingest*' -p -m ingest &
-SERVER_PID=$!
-sleep 2
-kill $SERVER_PID
-wait
-sleep 3
+coverage run --include='ingest*' -p -m ingest --stop-after-a-moment
 kill -9 $SERVER_PID $CELERY_PID || true
 wait
 coverage run --include='ingest*' -m -p pytest -v ingest/test/test_entry_points.py

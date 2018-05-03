@@ -89,7 +89,7 @@ class IngestState(BaseModel):
 
 def update_state(job_id, state, task, task_percent, exception=''):
     """Update the state of an ingest job."""
-    if job_id and job_id >= 0:
+    if job_id and int(job_id) >= 0:
         IngestState.database_connect()
         record = IngestState.get_or_create(job_id=job_id,
                                            defaults={'task': '', 'task_percent': 0, 'state': ''})[0]

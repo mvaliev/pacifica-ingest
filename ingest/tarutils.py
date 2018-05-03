@@ -7,6 +7,7 @@ import json
 import hashlib
 import time
 import os
+from six import PY2
 import requests
 from ingest.utils import get_unique_id
 
@@ -57,7 +58,7 @@ class FileIngester(object):
     def upload_file_in_file(self, info, tar):
         """Upload a file from inside a tar file."""
         self.fileobj = tar.extractfile(info)
-        size = self.fileobj.size
+        size = info.size
         size_str = str(size)
         mod_time = time.ctime(info.mtime)
         self.fileobj.seek(0)
@@ -68,11 +69,13 @@ class FileIngester(object):
         headers['Content-Type'] = 'application/octet-stream'
         headers['Content-Length'] = size_str
 
+        # pylint: disable=assignment-from-no-return
         req = self.session.put(
             url,
             data=self,
             headers=headers
         )
+        # pylint: enable=assignment-from-no-return
         self.fileobj.close()
         body = req.text
         ret_dict = json.loads(body)
@@ -141,8 +144,8 @@ class MetaParser(object):
         self.transaction_id = job_id
 
         string = tar.extractfile('metadata.txt').read()
-
-        meta_list = json.loads(string)
+        uni_str = string if PY2 else string.decode('utf8')
+        meta_list = json.loads(uni_str)
 
         # get the start index for the file
         self.file_count = file_count(tar)
@@ -207,8 +210,10 @@ class MetaParser(object):
 
             headers = {'content-type': 'application/json'}
 
+            # pylint: disable=assignment-from-no-return
             req = self.session.put(
                 archive_url, headers=headers, data=self.meta_str)
+            # pylint: enable=assignment-from-no-return
             if req.json()['status'] == 'success':
                 return True, ''
         # pylint: disable=broad-except
@@ -252,8 +257,8 @@ class TarIngester(object):
             path = self.meta.get_subdir(file_id) + '/' + name
             # this is for posix tar standard
             path = '/'.join(['data', get_clipped(path)])
-
-            info = self.tar.getmember(path.encode('utf-8'))
+            uni_path = path.encode('utf-8') if PY2 else path
+            info = self.tar.getmember(uni_path)
             print(info.name)
             ingest = FileIngester(
                 file_hash_type, file_hash, archive_url, file_id)

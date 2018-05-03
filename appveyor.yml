@@ -19,6 +19,7 @@ environment:
 
   matrix:
     - PYTHON: C:\Python27-x64
+    - PYTHON: C:\Python36-x64
 
 services:
   - mysql
@@ -30,6 +31,7 @@ before_test:
   - mysqladmin --host=%MYSQL_HOST% --user=%MYSQL_USER% --password=%MYSQL_PASSWORD% create pacifica_uniqueid
   - createdb pacifica_metadata
   - ps: >
+      $env:PATH = "${env:PGSQL_PATH}\bin;${env:MYSQL_PATH}\bin;${env:PYTHON}\Scripts;${env:PATH}";
       mkdir C:\ingest;
       mkdir C:\tmp;
       mkdir C:\archive;
@@ -59,9 +61,11 @@ before_test:
 
 install:
   - ps: >
+      $env:PATH = "${env:PGSQL_PATH}\bin;${env:MYSQL_PATH}\bin;${env:PYTHON}\Scripts;${env:PATH}";
       Invoke-WebRequest -Uri "https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.6.5.zip" -OutFile "elasticsearch.zip";
       Expand-Archive "elasticsearch.zip" -DestinationPath "C:\elasticsearch";
       Start-Process C:\elasticsearch\elasticsearch-5.6.5\bin\elasticsearch;
+      & "$env:PYTHON\python.exe" -m pip install pip setuptools wheel --upgrade;
       & "$env:PYTHON\python.exe" -m pip install -r requirements-dev.txt;
       & "$env:PYTHON\python.exe" -m pip install celery[redis] eventlet;
 
@@ -69,6 +73,7 @@ build: off
 
 test_script:
   - ps: >
+      $env:PATH = "${env:PGSQL_PATH}\bin;${env:MYSQL_PATH}\bin;${env:PYTHON}\Scripts;${env:PATH}";
       function error_and_dump([Boolean]$test_rc) {
         if( ! $test_rc ) {
           echo "================ Server Error ================";
@@ -92,7 +97,7 @@ test_script:
         }
       }
       echo "============= Starting ArchiveInterface =============";
-      $arch_proc = Start-Process $env:PYTHON\python.exe -ArgumentList "$env:PYTHON\scripts\ArchiveInterfaceServer.py --config travis/config.cfg --prefix C:\archive" -PassThru -RedirectStandardError archive-error.log -RedirectStandardOutput archive-output.log;
+      $arch_proc = Start-Process $env:PYTHON\python.exe -WorkingDirectory "travis\archivei" -ArgumentList "$env:PYTHON\scripts\ArchiveInterfaceServer.py --prefix C:\archive" -PassThru -RedirectStandardError archive-error.log -RedirectStandardOutput archive-output.log;
       echo "============= Starting Policy =============";
       $policy_proc = Start-Process $env:PYTHON\python.exe -ArgumentList "$env:PYTHON\scripts\PolicyServer.py" -WorkingDirectory "travis\policy" -PassThru -RedirectStandardError policy-error.log -RedirectStandardOutput policy-output.log;
       echo "============= Starting Cart Backend =============";

@@ -153,7 +153,7 @@ def validate_meta(meta_str):
         req_json = req.json()
         if req_json['status'] == 'success':
             return True, ''
-        return False, req_json['message']
+        return False, '{} ({})'.format(req_json['message'], req_json['traceback'])
     # pylint: disable=broad-except
     except Exception as ex:
         return False, ex

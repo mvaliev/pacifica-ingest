@@ -4,6 +4,7 @@
 import os
 import shutil
 import json
+from six import PY2
 import peewee
 import cherrypy
 from ingest.orm import read_state, update_state
@@ -24,7 +25,7 @@ class RestIngestState(object):
     def GET(job_id):
         """Get the ingest state for the job."""
         try:
-            record = read_state(job_id)
+            record = read_state(int(job_id))
         except peewee.DoesNotExist:
             raise cherrypy.HTTPError(
                 '404 Not Found', 'job ID {} does not exist.'.format(job_id))
@@ -50,7 +51,9 @@ class RestMove(object):
         name = str(job_id) + '.json'
         name = os.path.join(root, name)
         with open(name, 'wb') as ingest_fd:
-            ingest_fd.write(json.dumps(cherrypy.request.json))
+            uni_str = json.dumps(cherrypy.request.json)
+            bytes_str = uni_str if PY2 else bytes(uni_str, 'utf8')
+            ingest_fd.write(bytes_str)
         tasks.move.delay(job_id, name)
         return create_state_response(read_state(job_id))
     # pylint: enable=invalid-name

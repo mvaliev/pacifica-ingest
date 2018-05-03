@@ -2,21 +2,19 @@
 # -*- coding: utf-8 -*-
 """Index server unit and integration tests."""
 import os
-import unittest
 from tempfile import mkstemp
 import requests
-from ingest.orm import IngestState, BaseModel, update_state, read_state
+from ingest.orm import IngestState, update_state, read_state
 from ingest.utils import get_unique_id
 from ingest.tarutils import open_tar
 from ingest.tarutils import MetaParser
 from ingest.tarutils import TarIngester
 from ingest.tarutils import FileIngester
 from ingest.backend.tasks import ingest
-from playhouse.test_utils import test_database
-from peewee import SqliteDatabase
+from ingest.test.ingest_db_setup import IngestDBSetup
 
 
-class IndexServerUnitTests(unittest.TestCase):
+class IndexServerUnitTests(IngestDBSetup):
     """Index server unit and integration tests."""
 
     def test_file_ingester(self):
@@ -92,18 +90,21 @@ class IndexServerUnitTests(unittest.TestCase):
         """Test return and update of unique index."""
         rwfd, fname = mkstemp()
         os.close(rwfd)
-        with test_database(SqliteDatabase(fname), (BaseModel, IngestState)):
-            test_object = IngestState.create(job_id=999, state='ERROR', task='unbundling',
-                                             task_percent=42.3)
-            self.assertEqual(test_object.job_id, 999)
-            IngestState.database_close()
-            update_state(999, 'WORKING', 'validating', 33.2)
-            record = read_state(999)
-            self.assertEqual(record.state, 'WORKING')
-            self.assertEqual(record.task, 'validating')
-            self.assertEqual(float(record.task_percent), 33.2)
-            record = read_state(None)
-            self.assertEqual(record.state, 'DATA_ACCESS_ERROR')
-            self.assertEqual(record.task, 'read_state')
-            self.assertEqual(record.task_percent, 0)
+        test_object = IngestState.create(
+            job_id=999,
+            state='ERROR',
+            task='unbundling',
+            task_percent=42.3
+        )
+        self.assertEqual(test_object.job_id, 999)
+        IngestState.database_close()
+        update_state(999, 'WORKING', 'validating', 33.2)
+        record = read_state(999)
+        self.assertEqual(record.state, 'WORKING')
+        self.assertEqual(record.task, 'validating')
+        self.assertEqual(float(record.task_percent), 33.2)
+        record = read_state(None)
+        self.assertEqual(record.state, 'DATA_ACCESS_ERROR')
+        self.assertEqual(record.task, 'read_state')
+        self.assertEqual(record.task_percent, 0)
         os.unlink(fname)

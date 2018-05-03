@@ -1,6 +1,7 @@
 celery
 cherrypy
-peewee<3.0
+peewee>2
 pymysql
 requests
 setuptools
+six

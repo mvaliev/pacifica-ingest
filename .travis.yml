@@ -15,19 +15,14 @@ addons:
 language: python
 python:
  - 2.7
+ - 3.6
 
-matrix:
-  include:
-    - python: 2.7
-    - python: 2.7
-      env: RUN_LINTS=true
+env:
+ - RUN_LINTS=true
+ - RUN_LINTS=
+
 cache: pip
 
 before_install: bash -xe travis/before-install.sh
 install: pip install -r requirements-dev.txt
 script: bash -xe travis/test-script.sh
-
-notifications:
-  email:
-    - dmlb2000@gmail.com
-    - derek.hopkins@pnnl.gov

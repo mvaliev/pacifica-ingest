@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
-"""Ingest Server Main."""
-from sys import argv
+# pylint: disable=invalid-name
+"""Start the ingest server and setup WSGI."""
 import cherrypy
 from ingest.__main__ import error_page_default, main
 from ingest.rest import Root
@@ -15,4 +15,4 @@ application = cherrypy.Application(Root(), '/', CHERRYPY_CONFIG)
 # pylint: enable=invalid-name
 
 if __name__ == '__main__':
-    main(argv[1:])
+    main()
