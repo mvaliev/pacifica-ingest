@@ -57,3 +57,5 @@ docs/_build/
 target/
 celery_worker_state
 db.sqlite3
+
+.pytest_cache

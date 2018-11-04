@@ -24,7 +24,7 @@ def try_assert_job_state(job_state, state, task, percent):
     assert int(float(job_state['task_percent'])) == percent
 
 
-def try_good_move(mdfile, state, task, percent, wait=3):
+def try_good_move(mdfile, state, task, percent, wait=5):
     """Test the move and see if the state task and percent match."""
     with open(join('test_data', '{}.json'.format(mdfile)), 'r') as filefd:
         req = requests.post(
@@ -38,7 +38,7 @@ def try_good_move(mdfile, state, task, percent, wait=3):
         try_assert_job_state(job_state, state, task, percent)
 
 
-def try_good_upload(tarfile, state, task, percent, wait=3):
+def try_good_upload(tarfile, state, task, percent, wait=5):
     """Test the upload and see if the state task and percent match."""
     with open(join('test_data', '{}.tar'.format(tarfile)), 'rb') as filefd:
         req = requests.post(

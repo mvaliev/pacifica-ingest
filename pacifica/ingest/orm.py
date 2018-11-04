@@ -1,22 +1,18 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """ORM for index server."""
-import os
 import time
 from datetime import datetime
 import peewee
+from playhouse.db_url import connect
+from pacifica.ingest.config import get_config
 
 DATABASE_CONNECT_ATTEMPTS = 20
 DATABASE_WAIT = 5
-DB = peewee.MySQLDatabase(os.getenv('MYSQL_ENV_MYSQL_DATABASE', 'pacifica_ingest'),
-                          host=os.getenv(
-                              'MYSQL_PORT_3306_TCP_ADDR', '127.0.0.1'),
-                          port=int(os.getenv('MYSQL_PORT_3306_TCP_PORT', 3306)),
-                          user=os.getenv('MYSQL_ENV_MYSQL_USER', 'ingest'),
-                          passwd=os.getenv('MYSQL_ENV_MYSQL_PASSWORD', 'ingest'))
+DB = connect(get_config().get('database', 'peewee_url'))
 
 
-def create_tables(attempts=0):
+def database_setup(attempts=0):
     """Attempt to connect to the database."""
     try:
         IngestState.database_connect()
@@ -27,7 +23,7 @@ def create_tables(attempts=0):
         if attempts < DATABASE_CONNECT_ATTEMPTS:
             time.sleep(DATABASE_WAIT)
             attempts += 1
-            create_tables(attempts)
+            database_setup(attempts)
         else:
             raise peewee.OperationalError
 

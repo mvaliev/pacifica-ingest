@@ -1,11 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """Index server unit and integration tests."""
+from __future__ import absolute_import
 import os
 from tempfile import mkstemp
-from ingest.__main__ import cmd
-from ingest.orm import IngestState, read_state
-from ingest.test.ingest_db_setup import IngestDBSetup
+from pacifica.ingest.__main__ import cmd
+from pacifica.ingest.orm import IngestState, read_state
+from ingest_db_setup_test import IngestDBSetup
 
 
 class TestEntryPoints(IngestDBSetup):

@@ -7,9 +7,20 @@ import json
 from six import PY2
 import peewee
 import cherrypy
-from ingest.orm import read_state, update_state
-from ingest.utils import get_unique_id, create_state_response
-from ingest.backend import tasks
+from pacifica.ingest.orm import read_state, update_state
+from pacifica.ingest.utils import get_unique_id, create_state_response
+from pacifica.ingest.tasks import move, ingest
+
+
+def error_page_default(**kwargs):
+    """The default error page should always enforce json."""
+    cherrypy.response.headers['Content-Type'] = 'application/json'
+    return json.dumps({
+        'status': kwargs['status'],
+        'message': kwargs['message'],
+        'traceback': kwargs['traceback'],
+        'version': kwargs['version']
+    })
 
 
 # pylint: disable=too-few-public-methods
@@ -54,7 +65,7 @@ class RestMove(object):
             uni_str = json.dumps(cherrypy.request.json)
             bytes_str = uni_str if PY2 else bytes(uni_str, 'utf8')
             ingest_fd.write(bytes_str)
-        tasks.move.delay(job_id, name)
+        move.delay(job_id, name)
         return create_state_response(read_state(job_id))
     # pylint: enable=invalid-name
 
@@ -77,7 +88,7 @@ class RestUpload(object):
         name = os.path.join(root, name)
         with open(name, 'wb') as ingest_fd:
             shutil.copyfileobj(cherrypy.request.body, ingest_fd)
-        tasks.ingest.delay(job_id, name)
+        ingest.delay(job_id, name)
         return create_state_response(read_state(job_id))
     # pylint: enable=invalid-name
 

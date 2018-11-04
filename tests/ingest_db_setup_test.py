@@ -3,7 +3,7 @@
 """Test cart database setup class."""
 from unittest import TestCase
 from peewee import SqliteDatabase
-from ingest.orm import IngestState
+from pacifica.ingest.orm import IngestState
 
 
 class IngestDBSetup(TestCase):

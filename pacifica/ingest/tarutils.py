@@ -9,7 +9,7 @@ import time
 import os
 from six import PY2
 import requests
-from ingest.utils import get_unique_id
+from pacifica.ingest.utils import get_unique_id
 
 
 class HashValidationException(Exception):

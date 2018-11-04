@@ -12,9 +12,4 @@ if [[ -z $PEEWEE_DATABASE_URL ]] ; then
 fi
 mkdir ~/.pacifica-ingest/
 printf '[database]\npeewee_url = '${PEEWEE_DATABASE_URL}'\n' > ~/.pacifica-ingest/config.ini
-python -c 'from pacifica.ingest.orm import database_setup; database_setup()'
-uwsgi \
-  --http-socket 0.0.0.0:8066 \
-  --master \
-  --die-on-term \
-  --wsgi-file /usr/src/app/pacifica/ingest/wsgi.py "$@"
+celery -A pacifica.ingest.tasks worker --loglevel=info

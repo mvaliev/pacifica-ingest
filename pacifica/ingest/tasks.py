@@ -5,13 +5,19 @@ from __future__ import absolute_import, print_function
 import os
 import traceback
 import requests
-from celery import current_task
-from ingest.tarutils import open_tar
-from ingest.tarutils import MetaParser
-from ingest.tarutils import TarIngester
-from ingest.tarutils import patch_files
-from ingest.orm import update_state
-from .celery_ingest import INGEST_APP
+from celery import Celery
+from pacifica.ingest.tarutils import open_tar
+from pacifica.ingest.tarutils import MetaParser
+from pacifica.ingest.tarutils import TarIngester
+from pacifica.ingest.tarutils import patch_files
+from pacifica.ingest.orm import update_state
+
+
+INGEST_APP = Celery(
+    'ingest',
+    broker=os.getenv('BROKER_URL', 'pyamqp://'),
+    backend=os.getenv('BACKEND_URL', 'rpc://')
+)
 
 
 class IngestException(Exception):
@@ -158,12 +164,3 @@ def validate_meta(meta_str):
     except Exception as ex:
         return False, ex
     # pylint: enable=broad-except
-
-
-@INGEST_APP.task(ignore_result=False)
-def ping():  # pragma: no cover
-    """Check to see if the celery task process is started."""
-    print('Pinged!')
-    current_task.update_state(
-        state='PING', meta={'Status': 'Background process is alive'})
-    print('updated ping status')

@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """Test ingest with good uploads of good and bad data."""
-from __future__ import print_function
-from ingest.test import try_good_move
+from __future__ import print_function, absolute_import
+from common_methods_test import try_good_move
 
 
 def test_good_move():

@@ -1,17 +1,18 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """Index server unit and integration tests."""
+from __future__ import absolute_import
 import os
 from tempfile import mkstemp
 import requests
-from ingest.orm import IngestState, update_state, read_state
-from ingest.utils import get_unique_id
-from ingest.tarutils import open_tar
-from ingest.tarutils import MetaParser
-from ingest.tarutils import TarIngester
-from ingest.tarutils import FileIngester
-from ingest.backend.tasks import ingest
-from ingest.test.ingest_db_setup import IngestDBSetup
+from pacifica.ingest.orm import IngestState, update_state, read_state
+from pacifica.ingest.utils import get_unique_id
+from pacifica.ingest.tarutils import open_tar
+from pacifica.ingest.tarutils import MetaParser
+from pacifica.ingest.tarutils import TarIngester
+from pacifica.ingest.tarutils import FileIngester
+from pacifica.ingest.tasks import ingest
+from ingest_db_setup_test import IngestDBSetup
 
 
 class IndexServerUnitTests(IngestDBSetup):

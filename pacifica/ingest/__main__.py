@@ -5,22 +5,10 @@ from sys import argv as sys_argv
 from time import sleep
 from threading import Thread
 from argparse import ArgumentParser, SUPPRESS
-from json import dumps
 import cherrypy
-from ingest.rest import Root
-from ingest.orm import create_tables, update_state
-from ingest.globals import CHERRYPY_CONFIG
-
-
-def error_page_default(**kwargs):
-    """The default error page should always enforce json."""
-    cherrypy.response.headers['Content-Type'] = 'application/json'
-    return dumps({
-        'status': kwargs['status'],
-        'message': kwargs['message'],
-        'traceback': kwargs['traceback'],
-        'version': kwargs['version']
-    })
+from pacifica.ingest.rest import Root, error_page_default
+from pacifica.ingest.orm import database_setup, update_state
+from pacifica.ingest.globals import CHERRYPY_CONFIG
 
 
 def stop_later(doit=False):
@@ -57,7 +45,7 @@ def main(argv=None):
                         default=False, dest='stop_later',
                         action='store_true')
     args = parser.parse_args(argv)
-    create_tables()
+    database_setup()
     stop_later(args.stop_later)
     cherrypy.config.update({'error_page.default': error_page_default})
     cherrypy.config.update({
