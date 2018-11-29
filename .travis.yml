@@ -21,7 +21,7 @@ env:
   ADMIN_USER_ID: 10
   ARCHIVEINTERFACE_PORT: 9080
 ".script": &1
-- pip install .
+- pip install . 'redis<3.0'
 - export INGEST_CPCONFIG="$PWD/server.conf"
 - cd tests
 - |
