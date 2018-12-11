@@ -44,6 +44,7 @@ before_test:
     $env:POLICY_CPCONFIG = "$PWD/travis/policy/server.conf";
     $env:UNIQUEID_CPCONFIG = "$PWD/travis/uniqueid/server.conf";
     $env:ARCHIVEINTERFACE_CPCONFIG = "$PWD/travis/archivei/server.conf";
+    pacifica-metadata-cmd dbsync;
     mkdir ~/.pacifica-uniqueid;
     Set-Content -Path ~/.pacifica-uniqueid/config.ini -Value "[database]\npeewee_url = sqliteext:///uniqueiddb.sqlite3\n";
     Start-Process C:\pacifica\Scripts\pacifica-metadata.exe -RedirectStandardError metadata-error.log -RedirectStandardOutput metadata-output.log;

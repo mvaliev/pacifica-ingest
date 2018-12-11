@@ -55,6 +55,7 @@ env:
 - export POLICY_CPCONFIG="$PWD/travis/policy/server.conf"
 - export UNIQUEID_CPCONFIG="$PWD/travis/uniqueid/server.conf"
 - export ARCHIVEINTERFACE_CPCONFIG="$PWD/travis/archivei/server.conf"
+- pacifica-metadata-cmd dbsync
 - pushd travis/metadata; pacifica-metadata & echo $! > metadata.pid; popd;
 - pushd travis/archivei; pacifica-archiveinterface & echo $! > archivei.pid; popd;
 - pushd travis/uniqueid; pacifica-uniqueid & echo $! > uniqueid.pid; popd;

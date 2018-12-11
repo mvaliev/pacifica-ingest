@@ -6,17 +6,15 @@ import os
 import traceback
 import requests
 from celery import Celery
-from pacifica.ingest.tarutils import open_tar
-from pacifica.ingest.tarutils import MetaParser
-from pacifica.ingest.tarutils import TarIngester
-from pacifica.ingest.tarutils import patch_files
-from pacifica.ingest.orm import update_state
+from .tarutils import open_tar, MetaParser, TarIngester, patch_files
+from .orm import update_state
+from .config import get_config
 
 
 INGEST_APP = Celery(
     'ingest',
-    broker=os.getenv('BROKER_URL', 'pyamqp://'),
-    backend=os.getenv('BACKEND_URL', 'rpc://')
+    broker=get_config().get('celery', 'broker_url'),
+    backend=get_config().get('celery', 'backend_url')
 )
 
 
