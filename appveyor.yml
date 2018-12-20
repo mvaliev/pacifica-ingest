@@ -12,7 +12,7 @@ environment:
   NOTIFICATIONS_URL: http://127.0.0.1:8080
   PEEWEE_URL: postgres://postgres:Password12!@localhost/pacifica_metadata
   ADMIN_USER_ID: 10
-  ARCHIVEINTERFACE_PORT: 9080
+  ARCHIVEINTERFACE_URL: http://127.0.0.1:9080
   BROKER_URL: redis://127.0.0.1:6379/0
   matrix:
   - PYTHON: C:\Python27-x64
@@ -105,20 +105,21 @@ test_script:
     $env:INGEST_CPCONFIG = "$PWD/server.conf";
     rm -r -Force tests\test_data\data;
     pip install .; git reset --hard; cd tests;
+    Invoke-WebRequest 'http://127.0.0.1:8051/getid?mode=test&range=1';
+    Invoke-WebRequest 'http://127.0.0.1:8121/users?_id=10';
     echo "============= Starting ArchiveInterface =============";
     $arch_proc = Start-Process C:\pacifica\Scripts\pacifica-archiveinterface.exe -ArgumentList "--prefix C:\archive" -PassThru -RedirectStandardOutput archive-output.log -RedirectStandardError archive-error.log;
+    Invoke-WebRequest 'http://127.0.0.1:9080/1234';
     echo "============= Starting Policy =============";
     $policy_proc = Start-Process C:\pacifica\Scripts\pacifica-policy.exe -PassThru -RedirectStandardOutput policy-output.log -RedirectStandardError policy-error.log;
+    Invoke-WebRequest 'http://127.0.0.1:8181/status/users/by_id/dmlb2001';
     echo "============= Starting Ingest Backend =============";
     $back_proc = Start-Process C:\pacifica\Scripts\coverage.exe -ArgumentList 'run --include=*/site-packages/pacifica/ingest/* -p -m celery -A pacifica.ingest.tasks worker -l info -c 1 -P solo' -PassThru -RedirectStandardOutput celery-output.log -RedirectStandardError celery-error.log;
     echo "============= Starting Ingest Frontend =============";
     $front_proc = Start-Process C:\pacifica\Scripts\coverage.exe -ArgumentList 'run --include=*/site-packages/pacifica/ingest/* -p -m pacifica.ingest --stop-after-a-moment' -PassThru -RedirectStandardOutput server-output.log -RedirectStandardError server-error.log;
     echo foo > C:\tmp\foo.txt;
     ls C:\pacifica\Scripts;
-    Invoke-WebRequest 'http://127.0.0.1:8051/getid?mode=test&range=1';
     Invoke-WebRequest 'http://127.0.0.1:8066/get_state?job_id=1';
-    Invoke-WebRequest 'http://127.0.0.1:8121/users?_id=10';
-    Invoke-WebRequest 'http://127.0.0.1:8181/status/users/by_id/dmlb2001';
     coverage run --include="*/site-packages/pacifica/ingest/*" -p -m pytest -xv ingest_test.py upload_test.py utils_test.py move_test.py;
     error_and_dump $?;
     $policy_proc.Kill();

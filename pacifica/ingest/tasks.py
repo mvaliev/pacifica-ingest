@@ -141,18 +141,13 @@ def ingest(job_id, filepath):
 def validate_meta(meta_str):
     """Validate metadata."""
     try:
-        archivei_server = os.getenv('POLICY_SERVER', '127.0.0.1')
-        archivei_port = os.getenv('POLICY_PORT', '8181')
-        archivei_url = 'http://{0}:{1}/ingest'.format(
-            archivei_server, archivei_port)
-
+        ingest_policy_url = get_config().get('policy', 'ingest_url')
         headers = {'content-type': 'application/json'}
-
         session = requests.session()
         retry_adapter = requests.adapters.HTTPAdapter(max_retries=5)
         session.mount('http://', retry_adapter)
         session.mount('https://', retry_adapter)
-        req = session.post(archivei_url, headers=headers, data=meta_str)
+        req = session.post(ingest_policy_url, headers=headers, data=meta_str)
 
         req_json = req.json()
         if req_json['status'] == 'success':

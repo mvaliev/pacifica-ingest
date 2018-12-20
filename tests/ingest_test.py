@@ -20,10 +20,10 @@ class IndexServerUnitTests(IngestDBSetup):
 
     def test_file_ingester(self):
         """Test the FileIngester class."""
-        FileIngester('sha1', 'fakehashsum', '127.0.0.1', '1')
+        FileIngester('sha1', 'fakehashsum', '1')
         hit_exception = False
         try:
-            FileIngester('badfunc', 'fakehashsum', '127.0.0.1', '1')
+            FileIngester('badfunc', 'fakehashsum', '1')
         except ValueError:
             hit_exception = True
         self.assertTrue(hit_exception)

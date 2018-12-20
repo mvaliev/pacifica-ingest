@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 """Testable utilities for ingest."""
 from __future__ import print_function
-import os
 import json
 import requests
+from .config import get_config
 
 
 def create_state_response(record):
@@ -22,11 +22,9 @@ def create_state_response(record):
 
 def get_unique_id(id_range, mode):
     """Return a unique job id from the id server."""
-    uniqueid_server = os.getenv('UNIQUEID_SERVER', '127.0.0.1')
-    uniqueid_port = os.getenv('UNIQUEID_PORT', '8051')
-
-    url = 'http://{0}:{1}/getid?range={2}&mode={3}'.format(
-        uniqueid_server, uniqueid_port, id_range, mode)
+    uniqueid_url = get_config().get('uniqueid', 'url')
+    url = '{0}/getid?range={1}&mode={2}'.format(
+        uniqueid_url, id_range, mode)
 
     req = requests.get(url)
     body = req.text

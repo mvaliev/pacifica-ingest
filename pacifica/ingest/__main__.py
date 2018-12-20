@@ -18,7 +18,7 @@ def stop_later(doit=False):
 
     def sleep_then_exit():
         """
-        Sleep for 60 seconds then call cherrypy exit.
+        Sleep for 90 seconds then call cherrypy exit.
 
         Hopefully this is long enough for the end-to-end tests to finish
         """

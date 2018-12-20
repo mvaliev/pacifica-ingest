@@ -6,10 +6,10 @@ import tarfile
 import json
 import hashlib
 import time
-import os
 from six import PY2
 import requests
-from pacifica.ingest.utils import get_unique_id
+from .utils import get_unique_id
+from .config import get_config
 
 
 class HashValidationException(Exception):
@@ -27,14 +27,14 @@ class FileIngester(object):
     hashval = None
     server = ''
 
-    def __init__(self, hashtype, hashcode, server, file_id):
+    def __init__(self, hashtype, hashcode, file_id):
         """Constructor for FileIngester class."""
         if hashtype in hashlib.algorithms_available:
             self.hashval = getattr(hashlib, hashtype)()
         else:
             raise ValueError('Invalid Hashtype {}'.format(hashtype))
         self.recorded_hash = hashcode
-        self.server = server
+        self.server = get_config().get('archiveinterface', 'url')
         self.file_id = file_id
         self.session = requests.session()
         retry_adapter = requests.adapters.HTTPAdapter(max_retries=5)
@@ -62,7 +62,7 @@ class FileIngester(object):
         size_str = str(size)
         mod_time = time.ctime(info.mtime)
         self.fileobj.seek(0)
-        url = self.server + str(self.file_id)
+        url = '{}/{}'.format(self.server, str(self.file_id))
 
         headers = {}
         headers['Last-Modified'] = mod_time
@@ -203,16 +203,11 @@ class MetaParser(object):
         try:
             self.clean_metadata()
 
-            archive_server = os.getenv('METADATA_SERVER', '127.0.0.1')
-            archive_port = os.getenv('METADATA_PORT', '8121')
-            archive_url = 'http://{0}:{1}/ingest'.format(
-                archive_server, archive_port)
-
+            ingest_md_url = get_config().get('metadata', 'ingest_url')
             headers = {'content-type': 'application/json'}
-
             # pylint: disable=assignment-from-no-return
             req = self.session.put(
-                archive_url, headers=headers, data=self.meta_str)
+                ingest_md_url, headers=headers, data=self.meta_str)
             # pylint: enable=assignment-from-no-return
             if req.json()['status'] == 'success':
                 return True, ''
@@ -246,10 +241,6 @@ class TarIngester(object):
 
     def ingest(self):
         """Ingest a tar file into the file archive."""
-        archive_server = os.getenv('ARCHIVEINTERFACE_SERVER', '127.0.0.1')
-        archive_port = os.getenv('ARCHIVEINTERFACE_PORT', '8080')
-        archive_url = 'http://{0}:{1}/'.format(archive_server, archive_port)
-
         for file_id in self.meta.files.keys():
             file_hash_type, file_hash = self.meta.get_hash(file_id)
             name = self.meta.get_fname(file_id)
@@ -260,8 +251,7 @@ class TarIngester(object):
             uni_path = path.encode('utf-8') if PY2 else path
             info = self.tar.getmember(uni_path)
             print(info.name)
-            ingest = FileIngester(
-                file_hash_type, file_hash, archive_url, file_id)
+            ingest = FileIngester(file_hash_type, file_hash, file_id)
             ingest.upload_file_in_file(info, self.tar)
 # pylint: enable=too-few-public-methods
 
@@ -285,9 +275,7 @@ def open_tar(fpath):
 
 def patch_files(meta_obj):
     """Patch the files in the archive interface."""
-    archive_server = os.getenv('ARCHIVEINTERFACE_SERVER', '127.0.0.1')
-    archive_port = os.getenv('ARCHIVEINTERFACE_PORT', '8080')
-    archive_url = 'http://{0}:{1}/'.format(archive_server, archive_port)
+    archive_url = get_config().get('archiveinterface', 'url')
     session = requests.session()
     retry_adapter = requests.adapters.HTTPAdapter(max_retries=5)
     session.mount('https://', retry_adapter)
@@ -295,7 +283,7 @@ def patch_files(meta_obj):
     for file_id in meta_obj.files.keys():
         data = {'path': meta_obj.files[file_id]['source']}
         req = session.patch(
-            '{}{}'.format(archive_url, file_id),
+            '{}/{}'.format(archive_url, file_id),
             headers={'content-type': 'application/json'},
             data=json.dumps(data)
         )

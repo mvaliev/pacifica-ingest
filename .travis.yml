@@ -19,7 +19,7 @@ env:
   PEEWEE_URL: postgres://postgres:@localhost/pacifica_metadata
   BROKER_URL: redis://127.0.0.1:6379/0
   ADMIN_USER_ID: 10
-  ARCHIVEINTERFACE_PORT: 9080
+  ARCHIVEINTERFACE_URL: http://127.0.0.1:9080
 ".script": &1
 - pip install . 'redis<3.0'
 - export INGEST_CPCONFIG="$PWD/server.conf"

@@ -7,9 +7,10 @@ import json
 from six import PY2
 import peewee
 import cherrypy
-from pacifica.ingest.orm import read_state, update_state
-from pacifica.ingest.utils import get_unique_id, create_state_response
-from pacifica.ingest.tasks import move, ingest
+from .orm import read_state, update_state
+from .utils import get_unique_id, create_state_response
+from .tasks import move, ingest
+from .config import get_config
 
 
 def error_page_default(**kwargs):
@@ -58,7 +59,7 @@ class RestMove(object):
         """Post the uploaded data."""
         job_id = get_unique_id(1, 'upload_job')
         update_state(job_id, 'OK', 'UPLOADING', 0)
-        root = os.getenv('VOLUME_PATH', '/tmp')
+        root = get_config().get('ingest', 'volume_path')
         name = str(job_id) + '.json'
         name = os.path.join(root, name)
         with open(name, 'wb') as ingest_fd:
@@ -83,7 +84,7 @@ class RestUpload(object):
         """Post the uploaded data."""
         job_id = get_unique_id(1, 'upload_job')
         update_state(job_id, 'OK', 'UPLOADING', 0)
-        root = os.getenv('VOLUME_PATH', '/tmp')
+        root = get_config().get('ingest', 'volume_path')
         name = str(job_id) + '.tar'
         name = os.path.join(root, name)
         with open(name, 'wb') as ingest_fd:
