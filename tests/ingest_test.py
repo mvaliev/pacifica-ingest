@@ -6,6 +6,7 @@ import os
 from tempfile import mkstemp
 import requests
 from pacifica.ingest.orm import IngestState, update_state, read_state
+from pacifica.ingest.orm import IngestStateSystem, OrmSync
 from pacifica.ingest.utils import get_unique_id
 from pacifica.ingest.tarutils import open_tar
 from pacifica.ingest.tarutils import MetaParser
@@ -109,3 +110,25 @@ class IndexServerUnitTests(IngestDBSetup):
         self.assertEqual(record.task, 'read_state')
         self.assertEqual(record.task_percent, 0)
         os.unlink(fname)
+
+    def test_no_table_goc_version(self):
+        """Test the get or create version with no table."""
+        OrmSync.dbconn_blocking()
+        OrmSync.update_tables()
+        IngestStateSystem.drop_table()
+        major, minor = IngestStateSystem.get_or_create_version()
+        self.assertEqual(major, 0)
+        self.assertEqual(minor, 0)
+
+    def test_update_tables_twice(self):
+        """Test updating tables twice to verify completeness."""
+        hit_exception = False
+        try:
+            OrmSync.dbconn_blocking()
+            OrmSync.update_tables()
+            OrmSync.update_tables()
+        # pylint: disable=broad-except
+        except Exception:
+            hit_exception = True
+        # pylint: enable=broad-except
+        self.assertFalse(hit_exception)

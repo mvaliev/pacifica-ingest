@@ -27,8 +27,8 @@ setup(
     namespace_packages=['pacifica'],
     entry_points={
         'console_scripts': [
-            'pacifica-ingest-cmd=pacifica.ingest.__main__:cmd',
-            'pacifica-ingest=pacifica.ingest.__main__:main'
+            'pacifica-ingest=pacifica.ingest.__main__:main',
+            'pacifica-ingest-cmd=pacifica.ingest.__main__:cmd'
         ]
     },
     install_requires=[str(ir.req) for ir in INSTALL_REQS]
