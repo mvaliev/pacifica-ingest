@@ -18,7 +18,7 @@ tar -tf mybundle.tar
 
 For example, the contents of `mybundle.tar` is:
 ```
-data/mywork/project/proposal.doc
+data/mywork/project/project.doc
 data/mywork/experiment/results.csv
 data/mywork/experiment/results.doc
 metadata.txt

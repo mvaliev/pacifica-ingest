@@ -14,7 +14,7 @@ env:
   ADMIN_USER_ID: 10
   ARCHIVEINTERFACE_URL: http://127.0.0.1:9080
 ".script": &1
-- pip install 'redis<3.0'
+- pip install 'redis'
 - export INGEST_CPCONFIG="$PWD/server.conf"
 - export INGEST_CONFIG="$PWD/travis/config.ini"
 - cd tests
@@ -74,7 +74,7 @@ env:
 - pacifica-uniqueid & echo $! > uniqueid.pid
 - |
   pushd tests/test_data
-  for x in good bad-proposal bad-mimetype bad-hashsum ; do
+  for x in good bad-project bad-mimetype bad-hashsum ; do
     cp metadata-files/${x}-md.json metadata.txt
     tar -cf ${x}.tar metadata.txt data
   done
@@ -127,7 +127,7 @@ jobs:
     - |
       pip install pacifica-cli;
       mkdir ~/.pacifica-cli;
-      curl -o ~/.pacifica-cli/uploader.json https://raw.githubusercontent.com/pacifica/pacifica-cli/master/travis/uploader.json;
+      cp travis/uploader.json ~/.pacifica-cli/uploader.json
       printf 'http://localhost:8066/upload\nhttp://localhost:8066/get_state\nhttp://localhost:8181/uploader\nhttp://localhost:8181/ingest\nhttp://localhost:8081\nhttp://localhost:8181/status/transactions/by_id\nTrue\nNone\n' | pacifica-cli --config ~/.pacifica-cli/uploader.json configure;
       cd tests;
     - |

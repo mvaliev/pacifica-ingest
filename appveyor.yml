@@ -30,7 +30,7 @@ install:
     C:\pacifica\Scripts\activate.ps1;
     python -m pip install --upgrade pip setuptools wheel;
     python -m pip install -r requirements-dev.txt;
-    python -m pip install 'celery[eventlet]' eventlet 'redis<3.0';
+    python -m pip install 'celery[eventlet]' eventlet redis;
     echo "done";
 
 build: off
@@ -52,8 +52,8 @@ before_test:
     pushd tests/test_data;
     cp metadata-files/good-md.json metadata.txt;
     tar -cf good.tar metadata.txt data;
-    cp metadata-files/bad-proposal-md.json metadata.txt;
-    tar -cf bad-proposal.tar metadata.txt data;
+    cp metadata-files/bad-project-md.json metadata.txt;
+    tar -cf bad-project.tar metadata.txt data;
     cp metadata-files/bad-mimetype-md.json metadata.txt;
     tar -cf bad-mimetype.tar metadata.txt data;
     cp metadata-files/bad-hashsum-md.json metadata.txt;
