@@ -8,7 +8,7 @@ from six import PY2
 import peewee
 import cherrypy
 from .orm import read_state, update_state
-from .utils import get_unique_id, create_state_response
+from .utils import get_unique_id, create_state_response, parse_size
 from .tasks import move, ingest
 from .config import get_config
 
@@ -88,7 +88,10 @@ class RestUpload(object):
         name = str(job_id) + '.tar'
         name = os.path.join(root, name)
         with open(name, 'wb') as ingest_fd:
-            shutil.copyfileobj(cherrypy.request.body, ingest_fd)
+            shutil.copyfileobj(
+                cherrypy.request.body, ingest_fd,
+                parse_size(get_config().get('ingest', 'transfer_size'))
+            )
         ingest.delay(job_id, name)
         return create_state_response(read_state(job_id))
     # pylint: enable=invalid-name

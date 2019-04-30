@@ -13,6 +13,8 @@ def get_config():
     """Return the ConfigParser object with defaults set."""
     configparser = SafeConfigParser()
     configparser.add_section('ingest')
+    configparser.set('ingest', 'transfer_size', getenv(
+        'TRANSFER_SIZE', '4 Mb'))
     configparser.set('ingest', 'volume_path', getenv(
         'VOLUME_PATH', '/tmp'))
     configparser.add_section('uniqueid')
