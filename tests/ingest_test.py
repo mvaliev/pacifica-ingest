@@ -16,8 +16,8 @@ from pacifica.ingest.tasks import ingest
 from ingest_db_setup_test import IngestDBSetup
 
 
-class IndexServerUnitTests(IngestDBSetup):
-    """Index server unit and integration tests."""
+class IngestServerUnitTests(IngestDBSetup):
+    """Ingest server unit and integration tests."""
 
     def test_file_ingester(self):
         """Test the FileIngester class."""

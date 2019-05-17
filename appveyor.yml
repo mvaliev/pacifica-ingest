@@ -39,6 +39,7 @@ before_test:
 - ps: >
     $env:PATH = "${env:PGSQL_PATH}\bin;${env:PYTHON}\Scripts;${env:PATH}";
     createdb pacifica_metadata;
+    createdb pacifica_ingest;
     C:\pacifica\Scripts\activate.ps1;
     $env:METADATA_CPCONFIG = "$PWD/travis/metadata/server.conf";
     $env:POLICY_CPCONFIG = "$PWD/travis/policy/server.conf";
@@ -102,9 +103,10 @@ test_script:
       }
     }
     mkdir C:\tmp; mkdir C:\archive; C:\pacifica\Scripts\activate.ps1;
+    $env:PATH = "${env:PGSQL_PATH}\bin;${env:PATH}";
     pre-commit run -a;
     $env:INGEST_CPCONFIG = "$PWD/server.conf";
-    $env:INGEST_CONFIG = "$PWD/travis/config.ini";
+    $env:INGEST_CONFIG = "$PWD/travis/apconfig.ini";
     rm -r -Force tests\test_data\data; cd tests;
     pip install pacifica-ingest==0.2.0;
     python -c 'from pacifica.ingest.orm import database_setup; database_setup()';
@@ -117,7 +119,8 @@ test_script:
     coverage run --include='*/site-packages/pacifica/ingest/*' -a cmd_test.py dbchk;
     if ($LastExitCode -eq 0) { $host.SetShouldExit(-1); };
     coverage run --include='*/site-packages/pacifica/ingest/*' -a cmd_test.py dbsync;
-    rm -Force db.sqlite3;
+    dropdb pacifica_ingest;
+    createdb pacifica_ingest;
     coverage run --include='*/site-packages/pacifica/ingest/*' -a cmd_test.py dbsync;
     coverage run --include='*/site-packages/pacifica/ingest/*' -a cmd_test.py dbchk --equal;
     coverage run --include='*/site-packages/pacifica/ingest/*' -a cmd_test.py dbchk;

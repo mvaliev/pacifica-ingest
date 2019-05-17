@@ -29,6 +29,7 @@ def create_state_response(record):
         'state': record.state,
         'task': record.task,
         'task_percent': str(record.task_percent),
+        'complete': bool(record.complete),
         'updated': str(record.updated),
         'created': str(record.created),
         'exception': str(record.exception)

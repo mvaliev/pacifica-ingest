@@ -3,12 +3,13 @@
 """ORM for index server."""
 from time import sleep
 from datetime import datetime
-from peewee import Model, OperationalError
+from peewee import Model, OperationalError, BooleanField
 from peewee import CharField, IntegerField, BigIntegerField, TextField, DateTimeField, DecimalField
+from playhouse.migrate import SchemaMigrator, migrate
 from playhouse.db_url import connect
 from pacifica.ingest.config import get_config
 
-SCHEMA_MAJOR = 1
+SCHEMA_MAJOR = 2
 SCHEMA_MINOR = 0
 DB = connect(get_config().get('database', 'peewee_url'))
 
@@ -46,7 +47,8 @@ class OrmSync(object):
 
     versions = [
         (0, 0),
-        (1, 0)
+        (1, 0),
+        (2, 0)
     ]
 
     @staticmethod
@@ -66,9 +68,24 @@ class OrmSync(object):
 
     @classmethod
     def update_0_0_to_1_0(cls):
-        """Update by adding the boolean column."""
+        """Update by creating the table."""
         if not IngestState.table_exists():
             IngestState.create_table()
+        col_names = [col_md.name for col_md in DB.get_columns('ingeststate')]
+        if 'complete' in col_names:
+            migrator = SchemaMigrator(DB)
+            migrate(migrator.drop_column(
+                'ingeststate', 'complete'
+            ))
+
+    @classmethod
+    def update_1_0_to_2_0(cls):
+        """Update by adding the boolean column."""
+        migrator = SchemaMigrator(DB)
+        migrate(migrator.add_column(
+            'ingeststate', 'complete',
+            BooleanField(default=False)
+        ))
 
     @classmethod
     def update_tables(cls):
@@ -112,8 +129,8 @@ class IngestStateSystem(BaseModel):
         """Set or create the current version of the schema."""
         if not cls.table_exists():
             return (0, 0)
-        major = cls.get_or_create(part='major', value=SCHEMA_MAJOR)
-        minor = cls.get_or_create(part='minor', value=SCHEMA_MINOR)
+        major, _created = cls.get_or_create(part='major', value=SCHEMA_MAJOR)
+        minor, _created = cls.get_or_create(part='minor', value=SCHEMA_MINOR)
         return (major, minor)
 
     @classmethod
@@ -144,6 +161,7 @@ class IngestState(BaseModel):
     task = CharField()
     task_percent = DecimalField()
     exception = TextField(default='')
+    complete = BooleanField(default=False)
     created = DateTimeField(default=datetime.utcnow)
     updated = DateTimeField(default=datetime.utcnow)
 
@@ -190,6 +208,9 @@ class IngestState(BaseModel):
 
 def update_state(job_id, state, task, task_percent, exception=''):
     """Update the state of an ingest job."""
+    completed = False
+    if state == 'FAILED' or (task == 'ingest metadata' and task_percent == 100):
+        completed = True
     if job_id and int(job_id) >= 0:
         IngestState.database_connect()
         record = IngestState.get_or_create(job_id=job_id,
@@ -199,6 +220,7 @@ def update_state(job_id, state, task, task_percent, exception=''):
         record.task = task
         record.task_percent = task_percent
         record.exception = exception
+        record.complete = completed
         record.updated = datetime.utcnow()
         record.save()
         IngestState.database_close()

@@ -37,7 +37,8 @@ env:
   if [[ $ret_val == 0 ]] ; then exit -1; fi
   set -e
   $RUN_CMD -a cmd_test.py dbsync
-  rm -f db.sqlite3
+  psql -c 'drop database pacifica_ingest;' -U postgres
+  psql -c 'create database pacifica_ingest;' -U postgres
   $RUN_CMD -a cmd_test.py dbsync
   $RUN_CMD -a cmd_test.py dbchk --equal
   $RUN_CMD -a cmd_test.py dbchk
@@ -64,6 +65,7 @@ env:
 - coverage report -m --fail-under 100
 ".before_script": &2
 - psql -c 'create database pacifica_metadata;' -U postgres
+- psql -c 'create database pacifica_ingest;' -U postgres
 - export METADATA_CPCONFIG="$PWD/travis/metadata/server.conf"
 - export POLICY_CPCONFIG="$PWD/travis/policy/server.conf"
 - export UNIQUEID_CPCONFIG="$PWD/travis/uniqueid/server.conf"
