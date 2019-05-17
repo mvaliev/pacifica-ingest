@@ -70,6 +70,7 @@ before_test:
     python tests\test_files\loadit_test.py;
     Start-Process C:\pacifica\Scripts\python.exe -ArgumentList "tests\cherrypy_catch_test.py" -RedirectStandardError catch-error.log -RedirectStandardOutput catch-output.log;
     popd;
+    Invoke-WebRequest 'http://localhost:8051/getid?range=1000&mode=file';
 
 
 test_script:

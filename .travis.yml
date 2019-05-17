@@ -1,4 +1,5 @@
 language: python
+dist: xenial
 services:
 - postgresql
 - redis-server
@@ -34,6 +35,7 @@ env:
   $RUN_CMD -a cmd_test.py dbchk
   ret_val=$?
   if [[ $ret_val == 0 ]] ; then exit -1; fi
+  set -e
   $RUN_CMD -a cmd_test.py dbsync
   rm -f db.sqlite3
   $RUN_CMD -a cmd_test.py dbsync
@@ -47,10 +49,10 @@ env:
   kill $(cat ../policy.pid)
   $RUN_CMD -p -m pytest -v upload_badpolicy_test.py
   pushd ../; pacifica-policy & echo $! > policy.pid; popd
-  kill $(cat ../archivei.pid)
+  kill -9 $(cat ../archivei.pid)
   sleep 2
   $RUN_CMD -p -m pytest -v upload_badai_test.py
-  celery -A pacifica.ingest.tasks control shutdown
+  celery -A pacifica.ingest.tasks control shutdown || true
   kill $(cat ../policy.pid) || true
   kill $(cat ../metadata.pid) || true
   kill $(cat ../uniqueid.pid) || true
@@ -70,7 +72,7 @@ env:
 - pacifica-metadata-cmd dbsync
 - pacifica-uniqueid-cmd dbsync
 - pacifica-metadata & echo $! > metadata.pid
-- pacifica-archiveinterface & echo $! > archivei.pid
+- uwsgi --http-socket :9080 --master --module 'pacifica.archiveinterface.wsgi' & echo $! > archivei.pid
 - pacifica-uniqueid & echo $! > uniqueid.pid
 - |
   pushd tests/test_data
@@ -100,6 +102,7 @@ env:
   python tests/cherrypy_catch_test.py & echo $! > $TOP_DIR/travis/cherrypy-catch.pid
   popd
 - pacifica-policy & echo $! > policy.pid
+- curl 'localhost:8051/getid?range=1000&mode=file'
 jobs:
   include:
   - stage: lint
@@ -174,3 +177,5 @@ jobs:
         tags: true
 install:
 - pip install -r requirements-dev.txt
+- pip install uwsgi
+- pip freeze

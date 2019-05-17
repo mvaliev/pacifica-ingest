@@ -3,4 +3,4 @@ cherrypy
 peewee>2
 requests
 setuptools
-six
+six>=1.12.0
