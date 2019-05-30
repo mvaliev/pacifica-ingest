@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.5] - 2019-05-30
+### Changed
+- Fix #85 Add Nice Status URL by [@dmlb2000](https://github.com/dmlb2000)
+
 ## [0.3.4] - 2019-05-17
 ### Added
 - Ingest services to consume data bundles
