@@ -100,8 +100,16 @@ class RestUpload(object):
 class Root(object):
     """The CherryPy root object."""
 
-    exposed = False
+    exposed = True
     get_state = RestIngestState()
     upload = RestUpload()
     move = RestMove()
+
+    @staticmethod
+    @cherrypy.tools.json_out()
+    # pylint: disable=invalid-name
+    def GET():
+        """Return happy message about functioning service."""
+        return {'message': 'Pacifica Ingest Up and Running'}
+    # pylint: enable=invalid-name
 # pylint: enable=too-few-public-methods
