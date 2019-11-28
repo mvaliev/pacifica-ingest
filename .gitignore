@@ -70,4 +70,3 @@ Pipfile*
 Pipfile.lock
 #db cache
 file:cachedb?mode=memory&cache=shared
-
