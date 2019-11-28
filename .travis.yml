@@ -116,9 +116,9 @@ jobs:
     script: *1
     before_script: *2
     python: 3.6
-  - script: *1
-    before_script: *2
-    python: 2.7
+#  - script: *1
+#    before_script: *2
+#    python: 2.7
   - stage: test-docker
     sudo: required
     python: 3.6
