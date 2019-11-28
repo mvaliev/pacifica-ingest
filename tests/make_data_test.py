@@ -9,7 +9,7 @@ from shutil import copy, Error
 
 _THIS_DIR = dirname(abspath(__file__))
 _DATA_DIR = join(_THIS_DIR, 'test_data')
-_META_DATA_DIR = join(_DATA_DIR, "metadata-files")
+_META_DATA_DIR = join(_DATA_DIR, 'metadata-files')
 
 
 def get_data_dir():
@@ -50,5 +50,5 @@ def make_data(prefix, custom_meta_file=None):
         return abspath(tar_file_out)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     print(make_data('good'))
