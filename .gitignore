@@ -59,3 +59,15 @@ celery_worker_state
 db.sqlite3
 
 .pytest_cache
+
+# pycharmm
+.idea/
+
+#visual studio code
+.vscode/
+#pipenv
+Pipfile*
+Pipfile.lock
+#db cache
+file:cachedb?mode=memory&cache=shared
+
