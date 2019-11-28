@@ -110,8 +110,8 @@ jobs:
   - stage: lint
     python: 3.6
     script: pre-commit run -a
-  - python: 2.7
-    script: pre-commit run -a
+#  - python: 2.7
+#    script: pre-commit run -a
   - stage: test
     script: *1
     before_script: *2
