@@ -6,6 +6,7 @@ import requests
 from common_methods_test import try_good_upload
 from make_data_test import make_data
 
+
 def test_bad_job_id():
     """Test a bad job ID."""
     req = requests.get('http://127.0.0.1:8066/get_state?job_id=12345')
@@ -34,7 +35,7 @@ def test_bad_metadata_upload():
 
 def test_bad_json_upload():
     """Test if the metadata is down."""
-    make_data('bad-json','bad-json-md.notjson')
+    make_data('bad-json', 'bad-json-md.notjson')
     try_good_upload('bad-json', 'FAILED', 'load metadata', 0)
 
 
