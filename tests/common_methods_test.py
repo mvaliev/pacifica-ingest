@@ -51,3 +51,18 @@ def try_good_upload(tarfile, state, task, percent, wait=5):
         assert req.status_code == 200
         job_state = check_upload_state(loads(req.text)['job_id'], wait)
         try_assert_job_state(job_state, state, task, percent)
+
+
+def try_good_upload1(tarfile, state, task, percent, wait=5):
+    """Test the upload and see if the state task and percent match."""
+    with open(tarfile, 'rb') as filefd:
+        req = requests.post(
+            'http://127.0.0.1:8066/upload',
+            data=filefd,
+            headers={
+                'Content-Type': 'application/octet-stream'
+            }
+        )
+        assert req.status_code == 200
+        job_state = check_upload_state(loads(req.text)['job_id'], wait)
+        try_assert_job_state(job_state, state, task, percent)
