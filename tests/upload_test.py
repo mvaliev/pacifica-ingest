@@ -36,14 +36,9 @@ def test_data(prefix, custom_meta_file=None):
 
         try:
             tfo.add(meta_file)
-        except tarfile.TarError:
-            print('cannot add metafile to tar package')
-            raise
-
-        try:
             tfo.add(data_dir)
         except tarfile.TarError:
-            print('cannot add data dir to tar package')
+            print('cannot create tar package')
             raise
 
     yield abspath(tar_file_out)
