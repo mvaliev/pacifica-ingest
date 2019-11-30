@@ -4,7 +4,6 @@
 from __future__ import print_function, absolute_import
 import requests
 from common_methods_test import try_good_upload, try_good_upload1
-from make_data_test import make_data
 from contextlib import contextmanager
 import tarfile
 from os.path import join, dirname, abspath
