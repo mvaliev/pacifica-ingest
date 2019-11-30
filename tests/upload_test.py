@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 """Test ingest with good uploads of good and bad data."""
 from __future__ import print_function, absolute_import
-import requests
 from common_methods_test import try_good_upload, try_good_upload1
 from contextlib import contextmanager
 import tarfile
 from os.path import join, dirname, abspath
 from os import remove
 from shutil import copy, Error
+import requests
 
 _THIS_DIR = dirname(abspath(__file__))
 _DATA_DIR = join(_THIS_DIR, 'test_data')
