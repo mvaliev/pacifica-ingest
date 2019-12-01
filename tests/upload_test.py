@@ -5,7 +5,7 @@ from __future__ import print_function, absolute_import
 from contextlib import contextmanager
 import tarfile
 from os.path import join, dirname, abspath
-from os import remove
+from os import remove, chdir, getcwd
 from shutil import copy, Error
 import requests
 from common_methods_test import try_good_upload, try_good_upload1
@@ -22,9 +22,13 @@ def data_load(prefix, custom_meta_file=None):
         meta_file_in = join(_META_DATA_DIR, custom_meta_file)
     else:
         meta_file_in = join(_META_DATA_DIR, '%s-md.json' % prefix)
-    meta_file = join(_DATA_DIR, 'metadata.txt')
-    tar_file_out = join(_DATA_DIR, '%s.tar' % prefix)
     data_dir = join(_DATA_DIR, 'data')
+
+    old_dir = getcwd()
+    work_dir = _DATA_DIR
+    chdir(work_dir)
+    meta_file = 'metadata.txt'
+    tar_file_out = '%s.tar' % prefix
 
     try:
         copy(meta_file_in, meta_file)
@@ -44,6 +48,7 @@ def data_load(prefix, custom_meta_file=None):
     yield abspath(tar_file_out)
 
     remove(tar_file_out)
+    chdir(old_dir)
 
 
 def test_bad_job_id():
