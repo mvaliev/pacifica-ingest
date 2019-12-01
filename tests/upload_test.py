@@ -16,7 +16,7 @@ _META_DATA_DIR = join(_DATA_DIR, 'metadata-files')
 
 
 @contextmanager
-def test_data(prefix, custom_meta_file=None):
+def data_load(prefix, custom_meta_file=None):
     """generate data for tests."""
     if custom_meta_file:
         meta_file_in = join(_META_DATA_DIR, custom_meta_file)
@@ -75,7 +75,7 @@ def test_bad_metadata_upload():
 def test_bad_json_upload():
     """Test if the metadata is down."""
     # make_data('bad-json', 'bad-json-md.notjson')
-    with test_data('bad-json', 'bad-json-md.notjson') as fpath:
+    with data_load('bad-json', 'bad-json-md.notjson') as fpath:
         try_good_upload1(fpath, 'FAILED', 'load metadata', 0)
 
 
