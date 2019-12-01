@@ -47,7 +47,9 @@ def data_load(prefix, custom_meta_file=None):
 
     yield abspath(tar_file_out)
 
+    chdir(work_dir)
     remove(tar_file_out)
+    remove(meta_file)
     chdir(old_dir)
 
 
