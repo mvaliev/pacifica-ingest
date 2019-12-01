@@ -15,7 +15,7 @@ _DATA_DIR = join(_THIS_DIR, 'test_data')
 _META_DATA_DIR = join(_DATA_DIR, 'metadata-files')
 
 
-def test_data(prefix, custom_meta_file=None):
+def prepare_data(prefix, custom_meta_file=None):
     """generate data for tests."""
     if custom_meta_file:
         meta_file_in = join(_META_DATA_DIR, custom_meta_file)
@@ -73,7 +73,7 @@ def test_bad_metadata_upload():
 
 def test_bad_json_upload():
     """Test if the metadata is down."""
-    test_data('bad-json', 'bad-json-md.notjson')
+    prepare_data('bad-json', 'bad-json-md.notjson')
     try_good_upload('bad-json', 'FAILED', 'load metadata', 0)
 
 
