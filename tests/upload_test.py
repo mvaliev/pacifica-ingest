@@ -59,9 +59,9 @@ def test_bad_job_id():
 
 def test_good_upload():
     """Test the good upload."""
-    # try_good_upload('good', 'OK', 'ingest metadata', 100)
-    with data_load('good') as fpath:
-        try_good_upload1(fpath, 'OK', 'ingest metadata', 100)
+    try_good_upload('good', 'OK', 'ingest metadata', 100)
+    # with data_load('good') as fpath:
+    #     try_good_upload1(fpath, 'OK', 'ingest metadata', 100)
 
 
 def test_bad_project_upload():
