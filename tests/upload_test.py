@@ -4,7 +4,7 @@
 from __future__ import print_function, absolute_import
 import tarfile
 from os.path import join, dirname, abspath
-from os import remove
+# from os import remove
 from shutil import copy, Error
 import requests
 from common_methods_test import try_good_upload
@@ -40,9 +40,9 @@ def test_data(prefix, custom_meta_file=None):
             print('cannot create tar package')
             raise
 
-    yield abspath(tar_file_out)
+    return abspath(tar_file_out)
 
-    remove(tar_file_out)
+    # remove(tar_file_out)
 
 
 def test_bad_job_id():
@@ -73,6 +73,7 @@ def test_bad_metadata_upload():
 
 def test_bad_json_upload():
     """Test if the metadata is down."""
+    test_data('bad-json', 'bad-json-md.notjson')
     try_good_upload('bad-json', 'FAILED', 'load metadata', 0)
 
 
