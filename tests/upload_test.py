@@ -4,7 +4,6 @@
 from __future__ import print_function, absolute_import
 import requests
 from common_methods_test import try_good_upload
-from make_data_test import make_data
 
 
 def test_bad_job_id():
@@ -35,7 +34,6 @@ def test_bad_metadata_upload():
 
 def test_bad_json_upload():
     """Test if the metadata is down."""
-    make_data('bad-json', 'bad-json-md.notjson')
     try_good_upload('bad-json', 'FAILED', 'load metadata', 0)
 
 
