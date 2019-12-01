@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """Test ingest with good uploads of good and bad data."""
 from __future__ import print_function, absolute_import
-from contextlib import contextmanager
+import contextlib
 import tarfile
 from os.path import join, dirname, abspath
 from os import remove
@@ -16,7 +16,7 @@ _DATA_DIR = join(_THIS_DIR, 'test_data')
 _META_DATA_DIR = join(_DATA_DIR, 'metadata-files')
 
 
-@contextmanager
+@contextlib.contextmanager
 def test_data(prefix, custom_meta_file=None):
     """generate data for tests."""
     if custom_meta_file:
