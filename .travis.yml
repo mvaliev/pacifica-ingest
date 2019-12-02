@@ -100,9 +100,9 @@ env:
 - curl 'localhost:8051/getid?range=1000&mode=file'
 jobs:
   include:
-  - stage: lint
-    python: 3.6
-    script: pre-commit run -a
+#  - stage: lint
+#    python: 3.6
+#    script: pre-commit run -a
 #  - python: 2.7
 #    script: pre-commit run -a
   - stage: test
