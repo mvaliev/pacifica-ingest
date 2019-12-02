@@ -67,12 +67,12 @@ def test_good_upload():
         try_good_upload1(fpath, 'OK', 'ingest metadata', 100)
 
 
-# def test_bad_project_upload():
-#     """Test if the metadata is down."""
-#     # try_good_upload('bad-project', 'FAILED', 'Policy Validation', 0)
-#     with data_load('bad-project') as fpath:
-#         try_good_upload1(fpath, 'FAILED', 'Policy Validation', 0)
-#
+def test_bad_project_upload():
+    """Test if the metadata is down."""
+    # try_good_upload('bad-project', 'FAILED', 'Policy Validation', 0)
+    with data_load('bad-project') as fpath:
+        try_good_upload1(fpath, 'FAILED', 'Policy Validation', 0)
+
 #
 # def test_bad_hashsum_upload():
 #     """Test if the metadata is down."""
