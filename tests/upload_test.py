@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """Test ingest with good uploads of good and bad data."""
 from __future__ import print_function, absolute_import
-from contextlib import contextmanager
+import contextlib
 import tarfile
 from os.path import join, dirname, abspath
 from os import remove, chdir, getcwd
@@ -15,7 +15,7 @@ _DATA_DIR = join(_THIS_DIR, 'test_data')
 _META_DATA_DIR = join(_DATA_DIR, 'metadata-files')
 
 
-@contextmanager
+@contextlib.contextmanager
 def data_load(prefix, custom_meta_file=None):
     """generate data for tests."""
     if custom_meta_file:
@@ -46,12 +46,13 @@ def data_load(prefix, custom_meta_file=None):
             print('cannot create tar package')
             raise
 
-    yield abspath(bundle)
-
-    chdir(work_dir)
-    remove(bundle)
-    remove(meta_file)
-    chdir(old_dir)
+    try:
+        yield abspath(bundle)
+    finally:
+        chdir(work_dir)
+        remove(bundle)
+        remove(meta_file)
+        chdir(old_dir)
 
 #
 # def test_bad_job_id():
