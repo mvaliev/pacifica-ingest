@@ -58,7 +58,6 @@ env:
   wait ${SERVER_PID}
   set +x
 - coverage combine .coverage*
-- coverage report -m --fail-under 100
 ".before_script": &2
 - psql -c 'create database pacifica_metadata;' -U postgres
 - psql -c 'create database pacifica_ingest;' -U postgres
