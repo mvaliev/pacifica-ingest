@@ -4,6 +4,7 @@
 from os.path import join
 from time import sleep
 from json import loads
+import tarfile
 import requests
 
 
@@ -53,9 +54,20 @@ def try_good_upload(tarfile, state, task, percent, wait=5):
         try_assert_job_state(job_state, state, task, percent)
 
 
-def try_good_upload1(tarfile, state, task, percent, wait=5):
+def try_good_upload1(bundle_name, state, task, percent, wait=5):
     """Test the upload and see if the state task and percent match."""
-    with open(tarfile, 'rb') as filefd:
+    tar = tarfile.open(bundle_name)
+    for tarinfo in tar:
+        print(tarinfo.name, "is", tarinfo.size, "bytes in size and is", end="")
+        if tarinfo.isreg():
+            print("a regular file.")
+        elif tarinfo.isdir():
+            print("a directory.")
+        else:
+            print("something else.")
+    tar.close()
+
+    with open(bundle_name, 'rb') as filefd:
         req = requests.post(
             'http://127.0.0.1:8066/upload',
             data=filefd,

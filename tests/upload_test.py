@@ -28,7 +28,8 @@ def data_load(prefix, custom_meta_file=None):
     work_dir = _DATA_DIR
     chdir(work_dir)
     meta_file = 'metadata.txt'
-    tar_file_out = '%s.tar' % prefix
+    bundle = '%s.tar' % prefix
+    data_dir = 'data'
 
     try:
         copy(meta_file_in, meta_file)
@@ -36,7 +37,7 @@ def data_load(prefix, custom_meta_file=None):
         print('problems copying metafile')
         raise
 
-    with tarfile.open(tar_file_out, mode='w') as tfo:
+    with tarfile.open(bundle, mode='w') as tfo:
 
         try:
             tfo.add(meta_file)
@@ -45,10 +46,10 @@ def data_load(prefix, custom_meta_file=None):
             print('cannot create tar package')
             raise
 
-    yield abspath(tar_file_out)
+    yield abspath(bundle)
 
     chdir(work_dir)
-    remove(tar_file_out)
+    remove(bundle)
     remove(meta_file)
     chdir(old_dir)
 
