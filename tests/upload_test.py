@@ -52,11 +52,11 @@ def data_load(prefix, custom_meta_file=None):
     remove(meta_file)
     chdir(old_dir)
 
-
-def test_bad_job_id():
-    """Test a bad job ID."""
-    req = requests.get('http://127.0.0.1:8066/get_state?job_id=12345')
-    assert req.status_code == 404
+#
+# def test_bad_job_id():
+#     """Test a bad job ID."""
+#     req = requests.get('http://127.0.0.1:8066/get_state?job_id=12345')
+#     assert req.status_code == 404
 
 
 def test_good_upload():
@@ -66,30 +66,30 @@ def test_good_upload():
         try_good_upload1(fpath, 'OK', 'ingest metadata', 100)
 
 
-def test_bad_project_upload():
-    """Test if the metadata is down."""
-    # try_good_upload('bad-project', 'FAILED', 'Policy Validation', 0)
-    with data_load('bad-project') as fpath:
-        try_good_upload1(fpath, 'FAILED', 'Policy Validation', 0)
-
-
-def test_bad_hashsum_upload():
-    """Test if the metadata is down."""
-    try_good_upload('bad-hashsum', 'FAILED', 'ingest files', 0)
-
-
-def test_bad_metadata_upload():
-    """Test if the metadata is down."""
-    try_good_upload('bad-mimetype', 'FAILED', 'ingest metadata', 0)
-
-
-def test_bad_json_upload():
-    """Test if the metadata is down."""
-    # make_data('bad-json', 'bad-json-md.notjson')
-    with data_load('bad-json', 'bad-json-md.notjson') as fpath:
-        try_good_upload1(fpath, 'FAILED', 'load metadata', 0)
-
-
-def test_bad_tarfile_upload():
-    """Test if the metadata is down."""
-    try_good_upload('bad-tarfile', 'FAILED', 'open tar', 0)
+# def test_bad_project_upload():
+#     """Test if the metadata is down."""
+#     # try_good_upload('bad-project', 'FAILED', 'Policy Validation', 0)
+#     with data_load('bad-project') as fpath:
+#         try_good_upload1(fpath, 'FAILED', 'Policy Validation', 0)
+#
+#
+# def test_bad_hashsum_upload():
+#     """Test if the metadata is down."""
+#     try_good_upload('bad-hashsum', 'FAILED', 'ingest files', 0)
+#
+#
+# def test_bad_metadata_upload():
+#     """Test if the metadata is down."""
+#     try_good_upload('bad-mimetype', 'FAILED', 'ingest metadata', 0)
+#
+#
+# def test_bad_json_upload():
+#     """Test if the metadata is down."""
+#     # make_data('bad-json', 'bad-json-md.notjson')
+#     with data_load('bad-json', 'bad-json-md.notjson') as fpath:
+#         try_good_upload1(fpath, 'FAILED', 'load metadata', 0)
+#
+#
+# def test_bad_tarfile_upload():
+#     """Test if the metadata is down."""
+#     try_good_upload('bad-tarfile', 'FAILED', 'open tar', 0)
