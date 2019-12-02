@@ -76,9 +76,9 @@ def test_bad_project_upload():
 
 def test_bad_hashsum_upload():
     """Test if the metadata is down."""
-    # try_good_upload('bad-hashsum', 'FAILED', 'ingest files', 0)
-    with data_load('bad-hashsum') as fpath:
-        try_good_upload1(fpath, 'FAILED', 'FAILED', 'ingest files', 0)
+    try_good_upload('bad-hashsum', 'FAILED', 'ingest files', 0)
+    # with data_load('bad-hashsum') as fpath:
+    #     try_good_upload1(fpath, 'FAILED', 'FAILED', 'ingest files', 0)
 
 # def test_bad_metadata_upload():
 #     """Test if the metadata is down."""
