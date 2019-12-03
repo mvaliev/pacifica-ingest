@@ -41,12 +41,13 @@ class IngestServerUnitTests(IngestDBSetup):
     def test_tasks(self):
         """Test the ingest task."""
         job_id = get_unique_id(1, 'upload_job')
-
+        data_up('good')
         ingest(job_id, 'test_data/good.tar')
         self.assertTrue(job_id)
 
     def test_post_metadata(self):
         """Test sucking metadata from uploader and configuring it in a dictionary suitable to blob to meta ingest."""
+        data_up('good')
         tar = open_tar('test_data/good.tar')
         meta = MetaParser()
         meta.load_meta(tar, 1)
@@ -62,6 +63,7 @@ class IngestServerUnitTests(IngestDBSetup):
 
     def test_down_metadata(self):
         """Test a failed upload of the metadata."""
+        data_up('good')
         tar = open_tar('test_data/good.tar')
         meta = MetaParser()
 
@@ -76,6 +78,7 @@ class IngestServerUnitTests(IngestDBSetup):
 
     def test_ingest_tar(self):
         """Test moving individual files to the archive files are validated inline with the upload."""
+        data_up('good')
         tar = open_tar('test_data/good.tar')
         meta = MetaParser()
         meta.load_meta(tar, 1)
