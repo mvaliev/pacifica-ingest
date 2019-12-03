@@ -28,7 +28,6 @@ def data_load(prefix, custom_meta_file=None):
         prefix (str): metadata file prefix (*-md.json)
         custom_meta_file (str): custom name for metadata file
     """
-
     if custom_meta_file:
         meta_file_in = join(_META_DATA_DIR, custom_meta_file)
     else:
