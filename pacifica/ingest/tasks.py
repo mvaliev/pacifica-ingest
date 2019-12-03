@@ -133,7 +133,7 @@ def ingest(job_id, filepath):
         ingest_files(job_id, ingest_obj)
         ingest_metadata(job_id, meta)
         tar.close()
-        os.unlink(filepath)
+        # os.unlink(filepath)
     except IngestException:
         return
 
