@@ -18,7 +18,17 @@ _META_DATA_DIR = join(_DATA_DIR, 'metadata-files')
 
 @contextlib.contextmanager
 def data_load(prefix, custom_meta_file=None):
-    """generate data for tests."""
+    """
+    Generate data for tests.
+
+    It assumed that data folder is located in tests/test_data
+    and that metadata files are located in tests/test_data/metadata-files.
+
+    Parameters:
+        prefix (str): metadata file prefix (*-md.json)
+        custom_meta_file (str): custom name for metadata file
+    """
+
     if custom_meta_file:
         meta_file_in = join(_META_DATA_DIR, custom_meta_file)
     else:
@@ -92,6 +102,5 @@ def test_bad_json_upload():
 
 def test_bad_tarfile_upload():
     """Test if the metadata is down."""
-    # with data_load('bad-tarfile') as fpath:
     fpath = join(_DATA_DIR, 'bad-tarfile.tar')
     try_good_upload(fpath, 'FAILED', 'open tar', 0)
