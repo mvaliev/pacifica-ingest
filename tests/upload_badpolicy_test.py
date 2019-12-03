@@ -5,6 +5,7 @@ from __future__ import print_function, absolute_import
 from common_methods_test import try_good_upload1
 from upload_test import data_load
 
+
 def test_bad_policy_upload():
     """Test if the policy server is down."""
     with data_load('good') as fpath:
