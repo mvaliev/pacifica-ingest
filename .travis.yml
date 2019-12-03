@@ -77,15 +77,6 @@ env:
 - uwsgi --http-socket :9080 --master --module 'pacifica.archiveinterface.wsgi' & echo $! > archivei.pid
 - pacifica-uniqueid & echo $! > uniqueid.pid
 - |
-  pushd tests/test_data
-  for x in good bad-project bad-mimetype bad-hashsum ; do
-    cp metadata-files/${x}-md.json metadata.txt
-    tar -cf ${x}.tar metadata.txt data
-  done
-  cp metadata-files/bad-json-md.notjson metadata.txt
-  tar -cf bad-json.tar metadata.txt data
-  popd
-- |
   MAX_TRIES=60
   HTTP_CODE=$(curl -sL -w "%{http_code}\\n" localhost:8121/keys -o /dev/null || true)
   while [[ $HTTP_CODE != 200 && $MAX_TRIES > 0 ]] ; do
