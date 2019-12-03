@@ -87,12 +87,11 @@ def test_bad_metadata_upload():
     with data_load('bad-mimetype') as fpath:
         try_good_upload1(fpath, 'FAILED', 'ingest metadata', 0)
 
-# def test_bad_json_upload():
-#     """Test if the metadata is down."""
-#     # make_data('bad-json', 'bad-json-md.notjson')
-#     with data_load('bad-json', 'bad-json-md.notjson') as fpath:
-#         try_good_upload1(fpath, 'FAILED', 'load metadata', 0)
-#
+def test_bad_json_upload():
+    """Test if the metadata is down."""
+    with data_load('bad-json', 'bad-json-md.notjson') as fpath:
+        try_good_upload1(fpath, 'FAILED', 'load metadata', 0)
+
 #
 # def test_bad_tarfile_upload():
 #     """Test if the metadata is down."""
