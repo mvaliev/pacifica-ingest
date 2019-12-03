@@ -4,6 +4,7 @@ services:
 - postgresql
 - redis-server
 stages:
+- lint
 - test
 - test-docker
 - deploy
