@@ -7,12 +7,12 @@ from __future__ import absolute_import
 # import requests
 # from pacifica.ingest.orm import IngestState, update_state, read_state
 # from pacifica.ingest.orm import IngestStateSystem, OrmSync
-# from pacifica.ingest.utils import get_unique_id
+from pacifica.ingest.utils import get_unique_id
 from pacifica.ingest.tarutils import open_tar
 from pacifica.ingest.tarutils import MetaParser
 # from pacifica.ingest.tarutils import TarIngester
 from pacifica.ingest.tarutils import FileIngester
-# from pacifica.ingest.tasks import ingest
+from pacifica.ingest.tasks import ingest
 from ingest_db_setup_test import IngestDBSetup
 from upload_test import data_load
 
@@ -37,13 +37,14 @@ class IngestServerUnitTests(IngestDBSetup):
             meta = MetaParser()
             meta.load_meta(tar, 1)
             self.assertTrue(meta)
-    #
-    # def test_tasks(self):
-    #     """Test the ingest task."""
-    #     job_id = get_unique_id(1, 'upload_job')
-    #
-    #     ingest(job_id, 'test_data/good.tar')
-    #     self.assertTrue(job_id)
+
+    def test_tasks(self):
+        """Test the ingest task."""
+        job_id = get_unique_id(1, 'upload_job')
+
+        with data_load('good') as fpath:
+            ingest(job_id, fpath)
+            self.assertTrue(job_id)
     #
     # def test_post_metadata(self):
     #     """Test sucking metadata from uploader and configuring it in a dictionary suitable to blob to meta ingest."""
