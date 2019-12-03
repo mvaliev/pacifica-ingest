@@ -6,8 +6,7 @@ import contextlib
 import tarfile
 from os.path import join, dirname, abspath
 from os import remove, chdir, getcwd
-from shutil import copy, Error
-import requests
+from shutil import copy
 from common_methods_test import try_good_upload, try_good_upload1
 
 _THIS_DIR = dirname(abspath(__file__))
@@ -33,8 +32,8 @@ def data_load(prefix, custom_meta_file=None):
 
     try:
         copy(meta_file_in, meta_file)
-    except Error:
-        print('problems copying metafile')
+    except OSError:
+        print('\n problems copying metafile \n%s' % meta_file_in)
         raise
 
     with tarfile.open(bundle, mode='w') as tfo:
@@ -98,5 +97,6 @@ def test_bad_json_upload():
 def test_bad_tarfile_upload():
     """Test if the metadata is down."""
     # try_good_upload('bad-tarfile', 'FAILED', 'open tar', 0)
-    with data_load('bad-tarfile') as fpath:
-        try_good_upload1(fpath, 'FAILED', 'open tar', 0)
+    # with data_load('bad-tarfile') as fpath:
+    fpath = join(_DATA_DIR, 'bad-tarfile.tar')
+    try_good_upload1(fpath, 'FAILED', 'open tar', 0)

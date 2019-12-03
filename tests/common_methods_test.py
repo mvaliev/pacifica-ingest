@@ -56,16 +56,6 @@ def try_good_upload(tarfile, state, task, percent, wait=5):
 
 def try_good_upload1(bundle_name, state, task, percent, wait=5):
     """Test the upload and see if the state task and percent match."""
-    tar = tarfile.open(bundle_name)
-    for tarinfo in tar:
-        print(tarinfo.name, "is", tarinfo.size, "bytes in size and is", end="")
-        if tarinfo.isreg():
-            print("a regular file.")
-        elif tarinfo.isdir():
-            print("a directory.")
-        else:
-            print("something else.")
-    tar.close()
 
     with open(bundle_name, 'rb') as filefd:
         req = requests.post(
