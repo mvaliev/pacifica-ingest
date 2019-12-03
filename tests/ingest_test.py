@@ -43,6 +43,7 @@ class IngestServerUnitTests(IngestDBSetup):
         job_id = get_unique_id(1, 'upload_job')
 
         with data_load('good') as fpath:
+            print('fpath=', fpath)
             ingest(job_id, fpath)
             self.assertTrue(job_id)
     #
