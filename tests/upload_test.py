@@ -7,7 +7,7 @@ import tarfile
 from os.path import join, dirname, abspath
 from os import remove, chdir, getcwd
 from shutil import copy
-from common_methods_test import try_good_upload, try_good_upload1
+from common_methods_test import try_good_upload1
 
 _THIS_DIR = dirname(abspath(__file__))
 _DATA_DIR = join(_THIS_DIR, 'test_data')

@@ -4,7 +4,6 @@
 from os.path import join
 from time import sleep
 from json import loads
-import tarfile
 import requests
 
 
@@ -39,9 +38,9 @@ def try_good_move(mdfile, state, task, percent, wait=5):
         try_assert_job_state(job_state, state, task, percent)
 
 
-def try_good_upload(tarfile, state, task, percent, wait=5):
+def try_good_upload(tar_prefix, state, task, percent, wait=5):
     """Test the upload and see if the state task and percent match."""
-    with open(join('test_data', '{}.tar'.format(tarfile)), 'rb') as filefd:
+    with open(join('test_data', '{}.tar'.format(tar_prefix)), 'rb') as filefd:
         req = requests.post(
             'http://127.0.0.1:8066/upload',
             data=filefd,
