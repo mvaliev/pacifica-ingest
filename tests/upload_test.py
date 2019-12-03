@@ -7,6 +7,7 @@ import tarfile
 from os.path import join, dirname, abspath
 from os import remove, chdir, getcwd
 from shutil import copy
+import requests
 from common_methods_test import try_good_upload1
 
 
@@ -53,11 +54,10 @@ def data_load(prefix, custom_meta_file=None):
         chdir(old_dir)
 
 
-#
-# def test_bad_job_id():
-#     """Test a bad job ID."""
-#     req = requests.get('http://127.0.0.1:8066/get_state?job_id=12345')
-#     assert req.status_code == 404
+def test_bad_job_id():
+    """Test a bad job ID."""
+    req = requests.get('http://127.0.0.1:8066/get_state?job_id=12345')
+    assert req.status_code == 404
 
 
 def test_good_upload():
