@@ -14,7 +14,7 @@ from pacifica.ingest.tarutils import TarIngester
 from pacifica.ingest.tarutils import FileIngester
 from pacifica.ingest.tasks import ingest
 from ingest_db_setup_test import IngestDBSetup
-
+from upload_test import data_up
 
 class IngestServerUnitTests(IngestDBSetup):
     """Ingest server unit and integration tests."""
@@ -31,6 +31,7 @@ class IngestServerUnitTests(IngestDBSetup):
 
     def test_load_meta(self):
         """Test sucking metadata from uploader and configuring it in a dictionary suitable to blob to meta ingest."""
+        data_up('good')
         tar = open_tar('test_data/good.tar')
 
         meta = MetaParser()
