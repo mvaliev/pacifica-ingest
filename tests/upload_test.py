@@ -72,7 +72,7 @@ def test_bad_job_id():
 
 def test_good_upload():
     """Test the good upload."""
-    with data_load('good') as fpath:
+    with data_load('good', 'good-md.json') as fpath:
         try_good_upload(fpath, 'OK', 'ingest metadata', 100)
 
 
