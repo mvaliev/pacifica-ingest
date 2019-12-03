@@ -55,7 +55,6 @@ def try_good_upload(tar_prefix, state, task, percent, wait=5):
 
 def try_good_upload1(bundle_name, state, task, percent, wait=5):
     """Test the upload and see if the state task and percent match."""
-
     with open(bundle_name, 'rb') as filefd:
         req = requests.post(
             'http://127.0.0.1:8066/upload',

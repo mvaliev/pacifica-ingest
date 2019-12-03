@@ -21,7 +21,6 @@ def data_load(prefix, custom_meta_file=None):
         meta_file_in = join(_META_DATA_DIR, custom_meta_file)
     else:
         meta_file_in = join(_META_DATA_DIR, '%s-md.json' % prefix)
-    data_dir = join(_DATA_DIR, 'data')
 
     old_dir = getcwd()
     work_dir = _DATA_DIR
@@ -52,6 +51,7 @@ def data_load(prefix, custom_meta_file=None):
         remove(bundle)
         remove(meta_file)
         chdir(old_dir)
+
 
 #
 # def test_bad_job_id():
