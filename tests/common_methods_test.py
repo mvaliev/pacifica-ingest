@@ -53,7 +53,7 @@ def try_good_move(mdfile, state, task, percent, wait=5):
 #         try_assert_job_state(job_state, state, task, percent)
 
 
-def try_good_upload1(bundle_name, state, task, percent, wait=5):
+def try_good_upload(bundle_name, state, task, percent, wait=5):
     """Test the upload and see if the state task and percent match."""
     with open(bundle_name, 'rb') as filefd:
         req = requests.post(
