@@ -36,7 +36,6 @@ def data_load(prefix, custom_meta_file=None):
         raise
 
     with tarfile.open(bundle, mode='w') as tfo:
-
         try:
             tfo.add(meta_file)
             tfo.add(data_dir)
