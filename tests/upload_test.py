@@ -9,6 +9,7 @@ from os import remove, chdir, getcwd
 from shutil import copy
 from common_methods_test import try_good_upload1
 
+
 _THIS_DIR = dirname(abspath(__file__))
 _DATA_DIR = join(_THIS_DIR, 'test_data')
 _META_DATA_DIR = join(_DATA_DIR, 'metadata-files')
