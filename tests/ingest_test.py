@@ -47,15 +47,15 @@ class IngestServerUnitTests(IngestDBSetup):
 
     def test_post_metadata(self):
         """Test sucking metadata from uploader and configuring it in a dictionary suitable to blob to meta ingest."""
-        data_up('good')
-        tar = open_tar('test_data/good.tar')
+        file_path = data_up('good')
+        tar = open_tar(file_path)
         meta = MetaParser()
         meta.load_meta(tar, 1)
         success, exception = meta.post_metadata()
         self.assertTrue(success)
         self.assertFalse(exception)
-        data_up('bad-mimetype')
-        tar = open_tar('test_data/bad-mimetype.tar')
+        file_path = data_up('bad-mimetype')
+        tar = open_tar(file_path)
         meta = MetaParser()
         meta.load_meta(tar, 2)
         success, exception = meta.post_metadata()
@@ -64,8 +64,8 @@ class IngestServerUnitTests(IngestDBSetup):
 
     def test_down_metadata(self):
         """Test a failed upload of the metadata."""
-        data_up('good')
-        tar = open_tar('test_data/good.tar')
+        file_path = data_up('good')
+        tar = open_tar(file_path)
         meta = MetaParser()
 
         def bad_put(*args, **kwargs):  # pylint: disable=unused-argument
@@ -79,8 +79,8 @@ class IngestServerUnitTests(IngestDBSetup):
 
     def test_ingest_tar(self):
         """Test moving individual files to the archive files are validated inline with the upload."""
-        data_up('good')
-        tar = open_tar('test_data/good.tar')
+        file_path = data_up('good')
+        tar = open_tar(file_path)
         meta = MetaParser()
         meta.load_meta(tar, 1)
 
