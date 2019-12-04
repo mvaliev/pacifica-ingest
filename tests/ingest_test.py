@@ -41,8 +41,8 @@ class IngestServerUnitTests(IngestDBSetup):
     def test_tasks(self):
         """Test the ingest task."""
         job_id = get_unique_id(1, 'upload_job')
-        data_up('good')
-        ingest(job_id, 'test_data/good.tar')
+        file_path = data_up('good')
+        ingest(job_id, file_path)
         self.assertTrue(job_id)
 
     def test_post_metadata(self):
