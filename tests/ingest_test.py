@@ -31,8 +31,8 @@ class IngestServerUnitTests(IngestDBSetup):
 
     def test_load_meta(self):
         """Test sucking metadata from uploader and configuring it in a dictionary suitable to blob to meta ingest."""
-        data_up('good')
-        tar = open_tar('test_data/good.tar')
+        file_path = data_up('good')
+        tar = open_tar(file_path)
 
         meta = MetaParser()
         meta.load_meta(tar, 1)
