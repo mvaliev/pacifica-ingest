@@ -55,7 +55,7 @@ def data_load(prefix, custom_meta_file=None):
             raise
 
     try:
-        yield abspath(bundle)
+        yield join(work_dir, bundle)
     finally:
         chdir(work_dir)
         remove(bundle)
@@ -102,7 +102,7 @@ def data_up(prefix, custom_meta_file=None):
 
     chdir(old_dir)
 
-    return abspath(bundle)
+    return join(work_dir, bundle)
 
 
 def test_bad_job_id():
