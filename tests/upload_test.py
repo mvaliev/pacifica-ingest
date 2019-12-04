@@ -83,6 +83,49 @@ def data_up(prefix, custom_meta_file=None):
     work_dir = _DATA_DIR
     chdir(work_dir)
     meta_file = 'metadata.txt'
+    # bundle = '%s.tar' % prefix
+    bundle = 'test.tar'
+    data_dir = 'data'
+
+    try:
+        copy(meta_file_in, meta_file)
+    except OSError:
+        print('\n problems copying metafile \n%s' % meta_file_in)
+        raise
+
+    with tarfile.open(bundle, mode='w') as tfo:
+        try:
+            tfo.add(meta_file)
+            tfo.add(data_dir)
+        except tarfile.TarError:
+            print('cannot create tar package')
+            raise
+
+    chdir(old_dir)
+
+    return join(work_dir, bundle)
+
+
+def data_up1(prefix, custom_meta_file=None):
+    """
+    Generate data for tests.
+
+    It assumed that data folder is located in tests/test_data
+    and that metadata files are located in tests/test_data/metadata-files.
+
+    Parameters:
+        prefix (str): metadata file prefix (*-md.json)
+        custom_meta_file (str): custom name for metadata file
+    """
+    if custom_meta_file:
+        meta_file_in = join(_META_DATA_DIR, custom_meta_file)
+    else:
+        meta_file_in = join(_META_DATA_DIR, '%s-md.json' % prefix)
+
+    old_dir = getcwd()
+    work_dir = _DATA_DIR
+    chdir(work_dir)
+    meta_file = 'metadata.txt'
     bundle = '%s.tar' % prefix
     data_dir = 'data'
 
@@ -103,6 +146,7 @@ def data_up(prefix, custom_meta_file=None):
     chdir(old_dir)
 
     return join(work_dir, bundle)
+
 
 
 def test_bad_job_id():
