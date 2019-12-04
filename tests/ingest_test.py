@@ -54,6 +54,7 @@ class IngestServerUnitTests(IngestDBSetup):
         success, exception = meta.post_metadata()
         self.assertTrue(success)
         self.assertFalse(exception)
+        data_up('bad-mimetype')
         tar = open_tar('test_data/bad-mimetype.tar')
         meta = MetaParser()
         meta.load_meta(tar, 2)
