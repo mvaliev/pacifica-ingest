@@ -78,7 +78,7 @@ env:
 - pacifica-uniqueid & echo $! > uniqueid.pid
 - |
   pushd tests/test_data
-  for x in bad-project bad-mimetype bad-hashsum ; do
+  for x in bad-project bad-hashsum ; do
     cp metadata-files/${x}-md.json metadata.txt
     tar -cf ${x}.tar metadata.txt data
   done
