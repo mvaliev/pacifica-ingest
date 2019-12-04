@@ -14,7 +14,7 @@ from pacifica.ingest.tarutils import TarIngester
 from pacifica.ingest.tarutils import FileIngester
 from pacifica.ingest.tasks import ingest
 from ingest_db_setup_test import IngestDBSetup
-from upload_test import data_up, data_load
+from upload_test import data_up
 
 class IngestServerUnitTests(IngestDBSetup):
     """Ingest server unit and integration tests."""
@@ -41,10 +41,9 @@ class IngestServerUnitTests(IngestDBSetup):
     def test_tasks(self):
         """Test the ingest task."""
         job_id = get_unique_id(1, 'upload_job')
-        # file_path = data_up('good')
-        with data_load('good') as file_path:
-            ingest(job_id, file_path)
-            self.assertTrue(job_id)
+        file_path = data_up('good')
+        ingest(job_id, file_path)
+        self.assertTrue(job_id)
 
     def test_post_metadata(self):
         """Test sucking metadata from uploader and configuring it in a dictionary suitable to blob to meta ingest."""
