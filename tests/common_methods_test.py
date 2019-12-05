@@ -46,7 +46,6 @@ def try_good_upload(tarfile, state, task, percent, wait=5):
     """Test the upload and see if the state task and percent match."""
     # with open(join('test_data', '{}.tar'.format(tarfile)), 'rb') as filefd:
     with open(join(_DATA_DIR, '{}.tar'.format(tarfile)), 'rb') as filefd:
-        print("DATA_DIR = ", _DATA_DIR)
         req = requests.post(
             'http://127.0.0.1:8066/upload',
             data=filefd,
