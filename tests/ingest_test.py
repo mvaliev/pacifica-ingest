@@ -3,6 +3,7 @@
 """Index server unit and integration tests."""
 from __future__ import absolute_import
 import os
+from os.path import join, dirname, abspath
 from tempfile import mkstemp
 import requests
 from pacifica.ingest.orm import IngestState, update_state, read_state
@@ -14,6 +15,9 @@ from pacifica.ingest.tarutils import TarIngester
 from pacifica.ingest.tarutils import FileIngester
 from pacifica.ingest.tasks import ingest
 from ingest_db_setup_test import IngestDBSetup
+
+_THIS_DIR = dirname(abspath(__file__))
+_DATA_DIR = join(_THIS_DIR, 'test_data')
 
 
 class IngestServerUnitTests(IngestDBSetup):
@@ -31,7 +35,7 @@ class IngestServerUnitTests(IngestDBSetup):
 
     def test_load_meta(self):
         """Test sucking metadata from uploader and configuring it in a dictionary suitable to blob to meta ingest."""
-        tar = open_tar('test_data/good.tar')
+        tar = open_tar(join(_DATA_DIR, 'good.tar'))
 
         meta = MetaParser()
         meta.load_meta(tar, 1)
