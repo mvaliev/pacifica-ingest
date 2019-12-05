@@ -2,9 +2,13 @@
 # -*- coding: utf-8 -*-
 """Test module for the ingest python code."""
 from os.path import join
+from os.path import dirname, abspath
 from time import sleep
 from json import loads
 import requests
+
+_THIS_DIR = dirname(abspath(__file__))
+_DATA_DIR = join(_THIS_DIR, 'test_data')
 
 
 def check_upload_state(job_id, wait):
@@ -40,7 +44,9 @@ def try_good_move(mdfile, state, task, percent, wait=5):
 
 def try_good_upload(tarfile, state, task, percent, wait=5):
     """Test the upload and see if the state task and percent match."""
-    with open(join('test_data', '{}.tar'.format(tarfile)), 'rb') as filefd:
+    # with open(join('test_data', '{}.tar'.format(tarfile)), 'rb') as filefd:
+    with open(join(_DATA_DIR, '{}.tar'.format(tarfile)), 'rb') as filefd:
+        print("DATA_DIR = ", _DATA_DIR)
         req = requests.post(
             'http://127.0.0.1:8066/upload',
             data=filefd,
