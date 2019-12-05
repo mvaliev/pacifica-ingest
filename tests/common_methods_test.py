@@ -30,7 +30,7 @@ def try_assert_job_state(job_state, state, task, percent):
 
 def try_good_move(mdfile, state, task, percent, wait=5):
     """Test the move and see if the state task and percent match."""
-    with open(join('test_data', '{}.json'.format(mdfile)), 'r') as filefd:
+    with open(join(_DATA_DIR, '{}.json'.format(mdfile)), 'r') as filefd:
         req = requests.post(
             'http://127.0.0.1:8066/move',
             data=filefd.read(),
