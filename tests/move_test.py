@@ -3,6 +3,7 @@
 """Test ingest with good uploads of good and bad data."""
 from __future__ import print_function, absolute_import
 import os
+from os.path import dirname, abspath, join
 import json
 import hashlib
 from contextlib import contextmanager
@@ -14,6 +15,9 @@ except ImportError:  # pragma: no cover
 from six import ensure_binary
 import requests
 from common_methods_test import try_good_move, check_upload_state, try_assert_job_state
+
+_THIS_DIR = dirname(abspath(__file__))
+_DATA_DIR = join(_THIS_DIR, 'test_data')
 
 
 def test_good_move():
@@ -57,7 +61,7 @@ def create_temp_files(temp_dir, num_files=100):
 
 def test_big_move():
     """Test should create a large move and verify speed."""
-    with open(os.path.join('test_data', 'move-md.json'), 'r') as md_fd:
+    with open(os.path.join(_DATA_DIR, 'move-md.json'), 'r') as md_fd:
         md_data = json.loads(md_fd.read())
         md_data.pop()
     with TemporaryDirectory() as temp_dir:
