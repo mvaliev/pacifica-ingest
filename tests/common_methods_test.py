@@ -8,7 +8,7 @@ from json import loads
 import requests
 
 _THIS_DIR = dirname(abspath(__file__))
-_DATA_DIR = join(_THIS_DIR, 'test_data')
+_DATA_DIR = join(_THIS_DIR, 'test_data', 'tmp')
 
 
 def check_upload_state(job_id, wait):
