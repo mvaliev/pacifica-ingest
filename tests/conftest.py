@@ -17,7 +17,7 @@ def my_data():
     tmpdir = join(_DATA_DIR, 'tmp')
     mkdir(tmpdir)
 
-    print('Starting test in Data dir=', tmpdir)
+    print('Starting test in data dir=', tmpdir)
 
     files_to_copy = ['bad-hashsum.tar', 'bad-mimetype.tar', 'bad-tarfile.tar',
                      'bad-json.tar', 'bad-project.tar', 'good.tar']
