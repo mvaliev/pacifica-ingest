@@ -15,9 +15,11 @@ from pacifica.ingest.tarutils import TarIngester
 from pacifica.ingest.tarutils import FileIngester
 from pacifica.ingest.tasks import ingest
 from ingest_db_setup_test import IngestDBSetup
+from conftest import _TMP_DATA_DIR
 
 _THIS_DIR = dirname(abspath(__file__))
-_DATA_DIR = join(_THIS_DIR, 'test_data')
+# _DATA_DIR = join(_THIS_DIR, 'test_data')
+_DATA_DIR = _TMP_DATA_DIR
 
 
 class IngestServerUnitTests(IngestDBSetup):

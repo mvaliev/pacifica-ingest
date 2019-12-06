@@ -8,13 +8,14 @@ import pytest
 
 _THIS_DIR = dirname(abspath(__file__))
 _DATA_DIR = join(_THIS_DIR, 'test_data')
+_TMP_DATA_DIR = join(_DATA_DIR, 'tmp1')
 
 
 @pytest.fixture(scope='session', autouse=True)
 def my_data():
     """test."""
     # tmpdir = tmpdir_factory.getbasetemp()
-    tmpdir = join(_DATA_DIR, 'tmp')
+    tmpdir = _TMP_DATA_DIR
     mkdir(tmpdir)
 
     print('Starting test in data dir=', tmpdir)

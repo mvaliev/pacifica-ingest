@@ -6,9 +6,11 @@ from os.path import dirname, abspath
 from time import sleep
 from json import loads
 import requests
+from conftest import _TMP_DATA_DIR
 
 _THIS_DIR = dirname(abspath(__file__))
-_DATA_DIR = join(_THIS_DIR, 'test_data', 'tmp')
+# _DATA_DIR = join(_THIS_DIR, 'test_data', 'tmp')
+_DATA_DIR = _TMP_DATA_DIR
 
 
 def check_upload_state(job_id, wait):
@@ -44,6 +46,7 @@ def try_good_move(mdfile, state, task, percent, wait=5):
 
 def try_good_upload(tarfile, state, task, percent, wait=5):
     """Test the upload and see if the state task and percent match."""
+    print('TMP_DATA_DIR=', _TMP_DATA_DIR)
     # with open(join('test_data', '{}.tar'.format(tarfile)), 'rb') as filefd:
     with open(join(_DATA_DIR, '{}.tar'.format(tarfile)), 'rb') as filefd:
         req = requests.post(
