@@ -17,9 +17,10 @@ def test_good_upload():
     try_good_upload('good', 'OK', 'ingest metadata', 100)
 
 
-def test_bad_project_upload():
+def test_bad_project_upload(my_data):
     """Test if the metadata is down."""
     try_good_upload('bad-project', 'FAILED', 'Policy Validation', 0)
+    print("output from", my_data)
 
 
 def test_bad_hashsum_upload():
