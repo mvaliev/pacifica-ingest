@@ -19,7 +19,7 @@ def my_data():
 
     print('Starting test in Data dir=', tmpdir)
 
-    files_to_copy = ['bad-hashsum.tar',	'bad-mimetype.tar',	'bad-tarfile.tar',
+    files_to_copy = ['bad-hashsum.tar', 'bad-mimetype.tar', 'bad-tarfile.tar',
                      'bad-json.tar', 'bad-project.tar', 'good.tar']
 
     for fname in files_to_copy:
