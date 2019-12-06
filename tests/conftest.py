@@ -20,7 +20,8 @@ def my_data():
     print('Starting test in data dir=', tmpdir)
 
     files_to_copy = ['bad-hashsum.tar', 'bad-mimetype.tar', 'bad-tarfile.tar',
-                     'bad-json.tar', 'bad-project.tar', 'good.tar']
+                     'bad-json.tar', 'bad-project.tar', 'good.tar',
+                     'bad-move-md.json', 'move - md.json']
 
     for fname in files_to_copy:
         copy(join(_DATA_DIR, fname), join(tmpdir, fname))
