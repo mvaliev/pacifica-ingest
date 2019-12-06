@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-""" pytest fixture definition. """
+"""pytest fixture definition."""
 from os.path import join, dirname, abspath
 from os import listdir, mkdir
 from shutil import copy, rmtree
