@@ -25,7 +25,6 @@ def bundle_up(meta_file, data_dir, bundle_file):
         data_dir (str): path to data directory
         bundle_file (str): path to bundle (tar file)
     """
-
     with tarfile.open(bundle_file, mode='w') as tfp:
         try:
             tfp.add(meta_file, arcname='metadata.txt')
